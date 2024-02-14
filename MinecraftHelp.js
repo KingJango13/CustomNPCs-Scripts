@@ -15,7 +15,7 @@ function parseNBTString(nbtStr) {
 }
 
 function makeItemStack(id, count, meta, nbtDataStr) {
-    if(id.getClass() === ItemStack.class) return id;
+    if(typeof id.getClass === "function" && id.getClass() === ItemStack.class) return id;
     if(Array.isArray(id)) {
         count = id[1];
         meta = id[2];
