@@ -1,4 +1,4 @@
-load("./MinecraftHelp.js");
+load("https://kingjango13.github.io/CustomNPCs-Scripts/MinecraftHelp.js");
 
 importClass("com.hbm.inventory.CentrifugeRecipes");
 importClass("com.hbm.inventory.SILEXRecipes");
