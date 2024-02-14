@@ -83,11 +83,11 @@ function addRBMKOutgasserRecipe(input, flux, output) {
 }
 
 function addBreederRecipe(input, heat, output) {
-    BreederRecipes.addRecipe(new RecipesCommon.CompareableStack(makeItemStack(input)), makeItemStack(output), heat);
+    BreederRecipes.addRecipe(new RecipesCommon.ComparableStack(makeItemStack(input)), makeItemStack(output), heat);
 }
 
 function addBreederFuel(fuelItem, heat, breedingReactorUses) {
-    BreederRecipes.addFuel(new RecipesCommon.CompareableStack(makeItemStack(fuelItem)), heat, breedingReactorUses);
+    BreederRecipes.addFuel(new RecipesCommon.ComparableStack(makeItemStack(fuelItem)), heat, breedingReactorUses);
 }
 
 function getBedrockOreInfo(oreName) {
