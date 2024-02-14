@@ -99,7 +99,7 @@ function getBedrockOreInfo(oreName) {
         color: Number(BedrockOreRegistry.getOreColor(oreName)).toString(16),
         FluidName: FluidRegistry.getFluidName(fluid.getFluid()),
         Amount: fluid.amount,
-        toBlockNBT() {
+        toBlockNBT: function() {
             var nbt = new NBTTagCompound();
             nbt.func_74778_a("ore", oreName);
             nbt.func_74768_a("tier", tier);
