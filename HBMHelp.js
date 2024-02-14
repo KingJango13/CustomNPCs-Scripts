@@ -64,7 +64,7 @@ function addBlastFurnaceRecipe(input1, input2, output) {
 }
 
 function addBlastFurnaceFuel(fuelItem, power) {
-    DiFurnaceRecipes.addFuel(makeItemStack(fuelItem), power);
+    DiFurnaceRecipes.addFuel(new RecipesCommon.ComparableStack(makeItemStack(fuelItem)), power);
 }
 
 function addCrystallizerRecipe(input, fluidName, fluidAmount, output) {
@@ -105,6 +105,10 @@ function getBedrockOreInfo(oreName) {
             nbt.func_74768_a("tier", tier);
             nbt.func_74768_a("color", BedrockOreRegistry.getOreColor(oreName));
             return BedrockOreRegistry.getFluidRequirement(tier).writeToNBT(nbt);
+        },
+        toString: function() {
+            return "{index:" + this.index + ",tier:" + this.tier + ",color:\"#" + this.color + "\",FluidName:\"" + this.FluidName
+                + "\",Amount:" + this.Amount + "}";
         }
     }
 }

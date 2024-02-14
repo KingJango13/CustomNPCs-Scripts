@@ -1874,11 +1874,17 @@ declare namespace item {
         getFoodLevel(): number;
         getItemDamage(): number;
         getItemName(): String;
+        /**
+         * Get the full item NBT. If this were an ```EntityItem```, this would be the "Item" tag
+         */
         getItemNbt(): INbt;
         getLore(): String[];
         getMaxItemDamage(): number;
         getMaxStackSize(): number;
         getName(): String;
+        /**
+         * Get the "tag" of the item's NBT. If this were an ```EntityItem```, this would be "Item.tag"
+         */
         getNbt(): INbt;
         getStackSize(): number;
         getStoreddata(): entity.data.IData;

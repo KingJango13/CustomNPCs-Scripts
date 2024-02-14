@@ -24,3 +24,12 @@ function attack(event) {
     event.item.setTexture();
     event.player.damage()
 }
+
+/**
+ * 
+ * @param {event.ForgeEvent.InitEvent} event 
+ */
+function forgeInit(event) {
+    event.API.getIWorld(0).broadcast("FORGE INIT");
+    event.API.executeCommand(event.API.getIWorld(0), "say hi");
+}

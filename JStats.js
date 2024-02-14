@@ -32,6 +32,14 @@ function chat(event){
     }
 }
 
+var JSTATS_ALLOWED_PLAYERS = ["King_Jango_13", "Beastmode_1234", "turbulentfang", "Watermelyn"];
+function isJStatsAllowed(player) {
+    for(var i = 0; i < JSTATS_ALLOWED_PLAYERS.length; i++) {
+        if(player.getDisplayName() === JSTATS_ALLOWED_PLAYERS[i]) return true;
+    }
+    return false;
+}
+
 /**
  * 
  * @param {event.PlayerEvent.ChatEvent} event 
@@ -40,17 +48,17 @@ function chat(event){
 function jstat_cmd(event){
     var p = event.player;
     var msgArgs = event.message.split(" ");
-    if(msgArgs[0] !== "jstats" || p.getDisplayName() != "King_Jango_13")return;
+    if(msgArgs[0] !== "jstats" || !isJStatsAllowed(p)) return;
     var disp_help = function(){
-        p.message("Commands are: ");
-        p.message("    gm [0,1,2,3]");
-        p.message("    xp <amount>");
-        p.message("    inf_ammo <slot> <modName>");
-        p.message("    hbm_repairgun <slot>");
-        p.message("    unbreakable <slot>");
-        p.message("    tp player <playerName>");
-        p.message("    tp pos <x> <y> <z>");
-        p.message("    toggleOp");
+        p.message("Commands are (no slash): ");
+        p.message("    jstats gm [0,1,2,3]");
+        p.message("    jstats xp <amount>");
+        p.message("    jstats inf_ammo <slot> <modName>");
+        p.message("    jstats hbm_repairgun <slot>");
+        p.message("    jstats unbreakable <slot>");
+        p.message("    jstats tp player <playerName>");
+        p.message("    jstats tp pos <x> <y> <z>");
+        p.message("    jstats toggleOp");
     }
     if(msgArgs.length == 1){
         disp_help();
@@ -87,6 +95,7 @@ function jstat_cmd(event){
                 }
                 break;
             }
+            p.getInventoryHeldItem().addEnchantment()
             var gunNbt = p.getInventory().getSlot(intArg(2)).getNbt();
             switch (msgArgs[3]) {
                 case "techguns": {
