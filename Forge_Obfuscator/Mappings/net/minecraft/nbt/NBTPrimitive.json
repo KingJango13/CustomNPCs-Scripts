@@ -1,0 +1,8 @@
+{
+    "getLong": "func_150291_c",
+    "getInt": "func_150287_d",
+    "getShort": "func_150289_e",
+    "getByte": "func_150290_f",
+    "getDouble": "func_150286_g",
+    "getFloat": "func_150288_h"
+}

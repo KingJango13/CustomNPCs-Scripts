@@ -1,0 +1,12 @@
+{
+    "appendTag": "func_74742_a",
+    "set": "func_150304_a",
+    "removeTag": "func_74744_a",
+    "getCompoundTagAt": "func_150305_b",
+    "getIntAt": "func_186858_c",
+    "getIntArrayAt": "func_150306_c",
+    "getDoubleAt": "func_150309_d",
+    "getFloatAt": "func_150308_e",
+    "getStringTagAt": "func_150307_f",
+    "tagCount": "func_74745_c"
+}
