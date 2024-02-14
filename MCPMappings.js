@@ -119,6 +119,9 @@ var MAPPINGS = {
                 }
             },
             nbt: {
+                JsonToNBT: {
+                    getTagFromJson: "func_180713_a"
+                },
                 NBTBase: {
                     NBT_TYPES: "field_82578_b",
                     write: "func_74734_a",
@@ -228,7 +231,7 @@ var MAPPINGS = {
     },
     getObfuscatedName: function(fullPathOrObj, deobfName) {
         if(typeof fullPathOrObj === "object") {
-            return this.getObfuscatedName(getObjClass(fullPathOrObj).getName() + "." + deobfName);
+            return this.getObfuscatedName(getObjClass(fullPathOrObj).getName(), deobfName);
         }
         var path = fullPathOrObj.split(".");
         if(typeof deobfName === "string") {
