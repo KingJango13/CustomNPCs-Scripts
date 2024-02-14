@@ -33,3 +33,11 @@ function forgeInit(event) {
     event.API.getIWorld(0).broadcast("FORGE INIT");
     event.API.executeCommand(event.API.getIWorld(0), "say hi");
 }
+
+/**
+ * 
+ * @param {event.PlayerEvent.LoginEvent} event 
+ */
+function login(event) {
+    
+}

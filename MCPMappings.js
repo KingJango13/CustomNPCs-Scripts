@@ -234,7 +234,8 @@ var MAPPINGS = {
 
         var name = MAPPINGS;
         for(var i = 0; i < path.length; i++) {
-            name = (name || {[path[i]]: undefined})[path[i]];
+            if(name == null) break;
+            name = name[path[i]];
         }
         return name || path.pop();
     }
