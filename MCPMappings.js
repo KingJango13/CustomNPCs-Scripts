@@ -230,7 +230,7 @@ var MAPPINGS = {
         if(typeof fullPathOrObj === "object") {
             return this.getObfuscatedName(getObjClass(fullPathOrObj).getName() + "." + deobfName);
         }
-        var path = fullPath.split(".");
+        var path = fullPathOrObj.split(".");
 
         var name = MAPPINGS;
         for(var i = 0; i < path.length; i++) {
