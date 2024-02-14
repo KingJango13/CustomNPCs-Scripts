@@ -21,7 +21,7 @@ function addCentrifugeRecipe(input, outputs) {
     }
     CentrifugeRecipes.addRecipe(inputStack, Java.to(outputItems, "net.minecraft.item.ItemStack[]"))
 }
-const SILEX_WAVE_LENGTHS = {
+var SILEX_WAVE_LENGTHS = {
     RADIO: 0,
     MICROWAVE: 1,
     INFRARED: 2,
