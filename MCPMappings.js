@@ -231,6 +231,9 @@ var MAPPINGS = {
             return this.getObfuscatedName(getObjClass(fullPathOrObj).getName() + "." + deobfName);
         }
         var path = fullPathOrObj.split(".");
+        if(typeof deobfName === "string") {
+            path.push(deobfName);
+        }
 
         var name = MAPPINGS;
         for(var i = 0; i < path.length; i++) {
