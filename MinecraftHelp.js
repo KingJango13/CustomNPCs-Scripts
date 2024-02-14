@@ -4,7 +4,7 @@ function importClass(className) {
     globalThis[className.substring(className.lastIndexOf(".") + 1)] = Java.type(className);
 }
 
-importClass("net.minecraft.ItemStack");
+importClass("net.minecraft.item.ItemStack");
 importClass("net.minecraft.nbt.NBTTagCompound");
 
 importClass("net.minecraftforge.fluids.FluidRegistry");
