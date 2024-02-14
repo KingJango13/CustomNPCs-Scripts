@@ -258,5 +258,6 @@ function getStaticProperty(fullPathOrClassPathOrObj, deobfName) {
     if(typeof fullPathOrClassPathOrObj === "object") {
         fullPathOrClassPathOrObj = getObjClass(fullPathOrClassPathOrObj);
     }
-    return Java.type(fullPathOrClassPathOrObj)[fullPathOrClassPathOrObj + "." + deobfName];
+    var clazz = Java.type(fullPathOrClassPathOrObj);
+    return clazz[obf(fullPathOrClassPathOrObj, deobfName)];
 }
