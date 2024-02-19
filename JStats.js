@@ -45,12 +45,14 @@ function login(event) {
  * @param {entity.IPlayer} player 
  */
 function reloadPlayerData(player) {
-    var data = player.getStoreddata();
-    var jango = data.get("jango") || {};
+    var jango = {};
+    if(player.getStoreddata().has("jango")) {
+        jango = player.getStoreddata().get("jango");
+    }
     if(!jango.waypoints) {
         jango.waypoints = {};
     }
-    data.put("jango", jango);
+    player.getStoreddata().put("jango", jango);
 }
 
 var JSTATS_ALLOWED_PLAYERS = ["King_Jango_13", "Beastmode_1234", "turbulentfang", "Watermelyn"];
@@ -398,7 +400,9 @@ function jstat_cmd(event){
             break;
         }
         case "reloadPlayerData": {
+            p.message("Reloading player data...");
             reloadPlayerData(p);
+            p.message("Player data reloaded");
             break;
         }
         default: {
