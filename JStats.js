@@ -32,6 +32,27 @@ function chat(event){
     }
 }
 
+/**
+ * 
+ * @param {event.PlayerEvent.LoginEvent} event 
+ */
+function login(event) {
+    reloadPlayerData(event.player);
+}
+
+/**
+ * 
+ * @param {entity.IPlayer} player 
+ */
+function reloadPlayerData(player) {
+    var data = player.getStoreddata();
+    var jango = data.get("jango") || {};
+    if(!jango.waypoints) {
+        jango.waypoints = {};
+    }
+    data.put("jango", jango);
+}
+
 var JSTATS_ALLOWED_PLAYERS = ["King_Jango_13", "Beastmode_1234", "turbulentfang", "Watermelyn"];
 function isJStatsAllowed(player) {
     for(var i = 0; i < JSTATS_ALLOWED_PLAYERS.length; i++) {
@@ -56,6 +77,7 @@ function jstat_cmd(event){
         p.message("    jstats inf_ammo <slot>");
         p.message("    jstats itemNBT get <slot>");
         p.message("    jstats itemNBT merge <slot> <nbt>");
+        p.message("    jstats reloadPlayerData");
         p.message("    jstats toggleOp");
         p.message("    jstats tp player <playerName>");
         p.message("    jstats tp pos <x> <y> <z>");
@@ -70,8 +92,6 @@ function jstat_cmd(event){
     var intArg = function(index){
         return parseInt(msgArgs[index]);
     }
-
-    p.getStoreddata().put("jango", p.getStoreddata().get("jango") || {});
     
     switch(msgArgs[1]){
         case "gm": {
@@ -375,6 +395,10 @@ function jstat_cmd(event){
                     break;
                 }
             }
+            break;
+        }
+        case "reloadPlayerData": {
+            reloadPlayerData(p);
             break;
         }
         default: {
