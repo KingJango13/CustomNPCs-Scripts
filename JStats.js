@@ -32,27 +32,37 @@ function chat(event){
     }
 }
 
+var playerJangoData = {};
 /**
  * 
- * @param {event.PlayerEvent.LoginEvent} event 
+ * @param {entity.IPlayer} player 
  */
-function login(event) {
-    reloadPlayerData(event.player);
+function loadJangoData(player) {
+    playerJangoData[player.getUUID()] = JSON.parse(player.getStoreddata().get("jango") || "{}");
 }
 
 /**
  * 
  * @param {entity.IPlayer} player 
  */
-function reloadPlayerData(player) {
-    var jango = {};
-    if(player.getStoreddata().has("jango")) {
-        jango = player.getStoreddata().get("jango");
-    }
-    if(!jango.waypoints) {
-        jango.waypoints = {};
-    }
-    player.getStoreddata().put("jango", jango);
+function saveJangoData(player) {
+    player.getStoreddata().put("jango", JSON.stringify(playerJangoData[player.getUUID()] || {}));
+}
+
+/**
+ * 
+ * @param {event.PlayerEvent.LoginEvent} event 
+ */
+function login(event) {
+    loadJangoData(event.player);
+}
+
+/**
+ * 
+ * @param {event.PlayerEvent.LogoutEvent} event 
+ */
+function logout(event) {
+    saveJangoData(event.player);
 }
 
 var JSTATS_ALLOWED_PLAYERS = ["King_Jango_13", "Beastmode_1234", "turbulentfang", "Watermelyn"];
@@ -217,16 +227,14 @@ function jstat_cmd(event){
             break;
         }
         case "waypoint": {
+            var waypoints = playerJangoData[p.getUUID()].waypoints || {};
             switch(msgArgs[2]) {
                 case "set": {
                     if(msgArgs.length < 7) {
                         p.message("Usage: jstats waypoint set <name> <x> <y> <z>");
                         break;
                     }
-                    var jango = p.getStoreddata().get("jango");
-                    jango.waypoints = jango.waypoints || {};
-                    jango.waypoints[msgArgs[3]] = [intArg(4), intArg(5), intArg(6), p.getWorld().getDimension().getId()];
-                    p.getStoreddata().put("jango", jango);
+                    waypoints[msgArgs[3]] = [intArg(4), intArg(5), intArg(6), p.getWorld().getDimension().getId()];
                     break;
                 }
                 case "tp": {
@@ -235,7 +243,7 @@ function jstat_cmd(event){
                         break;
                     }
                     var targetName = msgArgs[3];
-                    var waypoint = p.getStoreddata().get("jango").waypoints[targetName];
+                    var waypoint = waypoints[targetName];
                     if(waypoint == null) {
                         p.message("You have no waypoint named \"" + targetName + "\"");
                         break;
@@ -249,7 +257,6 @@ function jstat_cmd(event){
                     break;
                 }
                 case "list": {
-                    var waypoints = p.getStoreddata().get("jango").waypoints;
                     for(var wp in waypoints) {
                         if(!Array.isArray(waypoints[wp])) continue;
                         p.message(
@@ -264,15 +271,12 @@ function jstat_cmd(event){
                         p.message("Usage: jstats waypoint remove <name>");
                         break;
                     }
-                    var jango = p.getStoreddata().get("jango");
-                    var waypoints = jango.waypoints;
                     var targetName = msgArgs[3];
                     if(!(targetName in waypoints)) {
                         p.message("You have no waypoint named \"" + targetName + "\"");
                         break;
                     }
                     delete waypoints[targetName];
-                    p.getStoreddata().put("jango", jango);
                     break;
                 }
                 case "distanceTo": {
@@ -281,7 +285,6 @@ function jstat_cmd(event){
                         break;
                     }
                     var targetName = msgArgs[3];
-                    var waypoints = p.getStoreddata().get("jango").waypoints;
                     if(!(targetName in waypoints)) {
                         p.message("You have no waypoint named \"" + targetName + "\"");
                         break;
@@ -311,6 +314,7 @@ function jstat_cmd(event){
                     break;
                 }
             }
+            playerJangoData[p.getUUID()].waypoints = waypoints;
             break;
         }
         case "itemNBT": {
@@ -401,7 +405,8 @@ function jstat_cmd(event){
         }
         case "reloadPlayerData": {
             p.message("Reloading player data...");
-            reloadPlayerData(p);
+            saveJangoData(p);
+            loadJangoData(p);
             p.message("Player data reloaded");
             break;
         }
