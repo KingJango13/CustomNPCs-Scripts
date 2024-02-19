@@ -705,7 +705,7 @@ declare namespace entity {
         updatePlayerInventory(): void;
     }
 
-    interface ICustomNpc<T extends net.minecraft.entity.EntityCreature> extends IEntityLivingBase<T> {
+    interface ICustomNpc<T extends net.minecraft.entity.EntityCreature = net.minecraft.entity.EntityCreature> extends IEntityLivingBase<T> {
         executeCommand(command: string): string;
         getAdvanced(): data.INPCAdvanced;
         getAi(): data.INPCAi;
@@ -1390,7 +1390,7 @@ declare namespace event {
     }
     
     interface PlayerEvent extends CustomNPCsEvent {
-        player: entity.IPlayer<net.minecraft.entity.player.EntityPlayerMP>;
+        player: entity.IPlayer;
     }
     
     namespace PlayerEvent {

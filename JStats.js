@@ -52,17 +52,20 @@ function jstat_cmd(event){
     var disp_help = function(){
         p.message("Commands are (no slash): ");
         p.message("    jstats gm [0,1,2,3]");
-        p.message("    jstats xp <amount>");
-        p.message("    jstats inf_ammo <slot> <modName>");
         p.message("    jstats hbm_repairgun <slot>");
-        p.message("    jstats unbreakable <slot>");
+        p.message("    jstats inf_ammo <slot>");
+        p.message("    jstats itemNBT get <slot>");
+        p.message("    jstats itemNBT merge <slot> <nbt>");
+        p.message("    jstats toggleOp");
         p.message("    jstats tp player <playerName>");
         p.message("    jstats tp pos <x> <y> <z>");
-        p.message("    jstats toggleOp");
-    }
-    if(msgArgs.length == 1){
-        disp_help();
-        return;
+        p.message("    jstats unbreakable <slot>");
+        p.message("    jstats waypoint distanceTo <name>");
+        p.message("    jstats waypoint list");
+        p.message("    jstats waypoint remove <name>");
+        p.message("    jstats waypoint set <name> <x> <y> <z>");
+        p.message("    jstats waypoint tp <name>");
+        p.message("    jstats xp <amount>");
     }
     var intArg = function(index){
         return parseInt(msgArgs[index]);
@@ -86,23 +89,18 @@ function jstat_cmd(event){
             break;
         }
         case "inf_ammo": {
-            var VALID_MODS = ["techguns", "crayfish", "hbm"];
-            if(msgArgs.length < 4) {
-                p.message("jstats inf_ammo <slot> <modName>");
-                p.message("Valid mods: ");
-                for(var i = 0; i < VALID_MODS.length; i++) {
-                    p.message("    - " + VALID_MODS[i]);
-                }
+            if(msgArgs.length < 3) {
+                p.message("jstats inf_ammo <slot>");
                 break;
             }
-            p.getInventoryHeldItem().addEnchantment()
+            var modID = p.getInventory().getSlot(intArg(2)).getItemNbt().getString("id").split(":")[0];
             var gunNbt = p.getInventory().getSlot(intArg(2)).getNbt();
-            switch (msgArgs[3]) {
+            switch (modID) {
                 case "techguns": {
                     gunNbt.setInteger("ammo", 32767);
                     break;
                 }
-                case "crayfish": {
+                case "cgm": {
                     gunNbt.setInteger("AmmoCount", 2147483647);
                     break;
                 }
@@ -112,10 +110,7 @@ function jstat_cmd(event){
                     break;
                 }
                 default: {
-                    p.message("Valid mods: ");
-                    for(var i = 0; i < VALID_MODS.length; i++) {
-                        p.message("    - " + VALID_MODS[i]);
-                    }
+                    p.message("Unsupported mod: " + modID);
                     break;
                 }
             }
@@ -197,7 +192,189 @@ function jstat_cmd(event){
             }
             break;
         }
-        case "help":
+        case "waypoint": {
+            switch(msgArgs[2]) {
+                case "set": {
+                    if(msgArgs.length < 7) {
+                        p.message("Usage: jstats waypoint set <name> <x> <y> <z>");
+                        break;
+                    }
+                    var jango = p.getStoreddata().get("jango");
+                    jango.waypoints = jango.waypoints || {};
+                    jango.waypoints[msgArgs[3]] = [intArg(4), intArg(5), intArg(6), p.getWorld().getDimension().getId()];
+                    p.getStoreddata().put("jango", jango);
+                    break;
+                }
+                case "tp": {
+                    if(msgArgs.length < 4) {
+                        p.message("Usage: jstats waypoint tp <name>");
+                        break;
+                    }
+                    var targetName = msgArgs[3];
+                    var waypoint = p.getStoreddata().get("jango").waypoints[targetName];
+                    if(waypoint == null) {
+                        p.message("You have no waypoint named \"" + targetName + "\"");
+                        break;
+                    }
+                    if(waypoint[3] !== p.getWorld().getDimension().getId()) {
+                        p.message("Cross-dimensional teleportation is not yet supported");
+                        break;
+                    }
+                    p.message("Teleporting to waypoint \"" + targetName + "\"...");
+                    p.setPos(event.API.getIPos(waypoint[0], waypoint[1], waypoint[2]));
+                    break;
+                }
+                case "list": {
+                    var waypoints = p.getStoreddata().get("jango").waypoints;
+                    for(var wp in waypoints) {
+                        if(!Array.isArray(waypoints[wp])) continue;
+                        p.message(
+                            wp + ": [" + waypoints[wp][0] + ", " + waypoints[wp][1] + ", " + waypoints[wp][2] + "] (" +
+                            event.API.getIWorld(waypoints[wp][3]).getDimension().getName() + ")"
+                        );
+                    }
+                    break;
+                }
+                case "remove": {
+                    if(msgArgs.length < 4) {
+                        p.message("Usage: jstats waypoint remove <name>");
+                        break;
+                    }
+                    var jango = p.getStoreddata().get("jango");
+                    var waypoints = jango.waypoints;
+                    var targetName = msgArgs[3];
+                    if(!(targetName in waypoints)) {
+                        p.message("You have no waypoint named \"" + targetName + "\"");
+                        break;
+                    }
+                    delete waypoints[targetName];
+                    p.getStoreddata().put("jango", jango);
+                    break;
+                }
+                case "distanceTo": {
+                    if(msgArgs.length < 4) {
+                        p.message("Usage: jstats waypoint distanceTo <name>");
+                        break;
+                    }
+                    var targetName = msgArgs[3];
+                    var waypoints = p.getStoreddata().get("jango").waypoints;
+                    if(!(targetName in waypoints)) {
+                        p.message("You have no waypoint named \"" + targetName + "\"");
+                        break;
+                    }
+                    if(p.getWorld().getDimension().getId() !== waypoints[targetName][3]) {
+                        p.message("Unable to measure distance across dimensions");
+                        break;
+                    }
+                    var dX = waypoints[targetName][0] - p.getBlockX();
+                    var dY = waypoints[targetName][1] - p.getBlockY();
+                    var dZ = waypoints[targetName][2] - p.getBlockZ();
+                    var distanceStr = (Math.round(Math.sqrt(dX*dX + dY*dY + dZ*dZ) * 100) / 100).toString();
+                    var decimalIndex = distanceStr.indexOf(".");
+                    if(decimalIndex !== -1) {
+                        distanceStr = distanceStr.substring(0, decimalIndex + 3);
+                    }
+                    p.message("Waypoint " + targetName + " is " + distanceStr + " blocks away");
+                    break;
+                }
+                default: {
+                    p.message("Usage:");
+                    p.message("    jstats waypoint set <name> <x> <y> <z>");
+                    p.message("    jstats waypoint tp <name>");
+                    p.message("    jstats waypoint list");
+                    p.message("    jstats waypoint remove <name>");
+                    p.message("    jstats waypoint distanceTo <name>");
+                    break;
+                }
+            }
+            break;
+        }
+        case "itemNBT": {
+            switch(msgArgs[2]) {
+                case "merge": {
+                    if(msgArgs.length < 5) {
+                        p.message("Usage: jstats itemNBT merge <slot> <nbt>");
+                        break;
+                    }
+                    var itemTag = p.getInventory().getSlot(intArg(2)).getNbt();
+                    /**
+                     * @type {INbt}
+                     */
+                    var nbtSrc;
+                    try {
+                        nbtSrc = event.API.stringToNbt(msgArgs[3]);
+                    } catch (error) {
+                        p.message("Unable to parse NBT");
+                        break;
+                    }
+                    var tagNames = nbtSrc.getKeys();
+                    for(var i = 0; i < tagNames.length; i++) {
+                        switch(nbtSrc.getType(tagNames[i])) {
+                            case 1: {
+                                itemTag.setByte(tagNames[i], nbtSrc.getByte(tagNames[i]));
+                                break;
+                            }
+                            case 2: {
+                                itemTag.setShort(tagNames[i], nbtSrc.getShort(tagNames[i]));
+                                break;
+                            }
+                            case 3: {
+                                itemTag.setInteger(tagNames[i], nbtSrc.getInteger(tagNames[i]));
+                                break;
+                            }
+                            case 4: {
+                                itemTag.setLong(tagNames[i], nbtSrc.getLong(tagNames[i]));
+                                break;
+                            }
+                            case 5: {
+                                itemTag.setFloat(tagNames[i], nbtSrc.getFloat(tagNames[i]));
+                                break;
+                            }
+                            case 6: {
+                                itemTag.setDouble(tagNames[i], nbtSrc.getDouble(tagNames[i]));
+                                break;
+                            }
+                            case 7: {
+                                itemTag.setByteArray(tagNames[i], nbtSrc.getByteArray(tagNames[i]));
+                                break;
+                            }
+                            case 8: {
+                                itemTag.setString(tagNames[i], nbtSrc.getString(tagNames[i]));
+                                break;
+                            }
+                            case 9: {
+                                itemTag.setList(tagNames[i], nbtSrc.getList(tagNames[i], nbtSrc.getListType(tagNames[i])));
+                                break;
+                            }
+                            case 10: {
+                                itemTag.setCompound(tagNames[i], nbtSrc.getCompound(tagNames[i]));
+                                break;
+                            }
+                            case 11: {
+                                itemTag.setIntegerArray(tagNames[i], nbtSrc.getIntegerArray(tagNames[i]));
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+                case "get": {
+                    if(msgArgs.length < 4) {
+                        p.message("Usage: jstats itemNBT get <slot>");
+                        break;
+                    }
+                    p.message(p.getInventory().getSlot(intArg(2)).getNbt().toJsonString());
+                    break;
+                }
+                default: {
+                    p.message("Usage:");
+                    p.message("    jstats itemNBT get <slot>");
+                    p.message("    jstats itemNBT merge <slot> <nbt>");
+                    break;
+                }
+            }
+            break;
+        }
         default: {
             disp_help();
             break;
