@@ -70,6 +70,8 @@ function jstat_cmd(event){
     var intArg = function(index){
         return parseInt(msgArgs[index]);
     }
+
+    p.getStoreddata().put("jango", p.getStoreddata().get("jango") || {});
     
     switch(msgArgs[1]){
         case "gm": {
