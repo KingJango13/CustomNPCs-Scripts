@@ -28,6 +28,7 @@ interface INbt {
      */
     getListType(key: String): number;
     getLong(key: String): number;
+    getMCNBT(): net.minecraft.nbt.NBTTagCompound;
     getShort(key: String): number;
     getString(key: String): String;
     /**
@@ -81,6 +82,7 @@ interface IPos {
     distanceTo(pos: IPos): number;
     down(n?: number): IPos;
     east(n?: number): IPos;
+    getMCBlockPos(): net.minecraft.util.math.BlockPos;
     getX(): number;
     getY(): number;
     getZ(): number;
@@ -250,6 +252,8 @@ interface NpcAPI {
     getClones(): handler.ICloneHandler;
     getDialogs(): handler.IDialogHandler;
     getFactions(): handler.IFactionHandler;
+    getIBlock(world: net.minecraft.world.World, pos: net.minecraft.util.math.BlockPos): block.IBlock;
+    getIItemStack(mcItemStack: net.minecraft.item.ItemStack): item.IItemStack;
     getIPos(x: number, y: number, z: number): IPos;
     getIWorld(dimensionId: number): IWorld;
     getIWorlds(): IWorld[];
@@ -522,7 +526,7 @@ declare namespace constants {
 }
 
 declare namespace entity {
-    interface IEntity<T extends net.minecraft.entity.Entity> {
+    interface IEntity<T extends net.minecraft.entity.Entity = net.minecraft.entity.Entity> {
         addRider(entity: IEntity): void;
         addTag(tag: String): void;
         clearRiders(): void;
@@ -1006,7 +1010,7 @@ declare namespace entity {
             setRespawnType(type: number): void;
         }
 
-        namespace role {    
+        namespace role {
             interface IJobBard {
                 getSong(): String;
                 setSong(song: String): void;
@@ -1881,6 +1885,7 @@ declare namespace item {
         getLore(): String[];
         getMaxItemDamage(): number;
         getMaxStackSize(): number;
+        getMCItemStack(): net.minecraft.item.ItemStack;
         getName(): String;
         /**
          * Get the "tag" of the item's NBT. If this were an ```EntityItem```, this would be "Item.tag"
@@ -1940,271 +1945,698 @@ declare namespace item {
     }
 }
 
-declare namespace com.mojang {
-    namespace authlib {
-        interface GameProfile {}
+declare namespace com {
+    namespace mojang {
+        namespace authlib {
+            interface GameProfile {}
+        }
     }
 }
 
-declare namespace net.minecraft {
-    namespace entity {
+declare namespace net {
+    namespace minecraft {
+        namespace block {
+            class Block {}
+        }
+        namespace entity {
+            namespace item {
+                interface EntityItem extends Entity {}
+            }
+            namespace monster {
+                interface EntityMob extends EntityCreature {}
+            }
+            namespace passive {
+                interface EntityAnimal extends EntityAgeable {}
+            }
+            namespace player {
+                interface EntityPlayer extends EntityLivingBase {
+                    /**
+                     * field_71071_by
+                     */
+                    inventory: InventoryPlayer;
+                    /**
+                     * inventory
+                     */
+                    field_71071_by: InventoryPlayer;
+                }
+                interface EntityPlayerMP extends EntityPlayer {}
+                interface InventoryPlayer implements net.minecraft.inventory.IInventory {
+                    /**
+                     * field_70462_a
+                     */
+                    mainInventory: java.util.List<net.minecraft.item.ItemStack>;
+                    /**
+                     * mainInventory
+                     */
+                    field_70462_a: java.util.List<net.minecraft.item.ItemStack>;
+                    /**
+                     * field_70460_b
+                     */
+                    armorInventory: java.util.List<net.minecraft.item.ItemStack>;
+                    /**
+                     * armorInventory
+                     */
+                    field_70460_b: java.util.List<net.minecraft.item.ItemStack>;
+
+                    /**
+                     * func_191521_c
+                     * @param stack 
+                     */
+                    addItemStackToInventory(stack: net.minecraft.item.ItemStack): boolean;
+                    /**
+                     * addItemStackToInventory
+                     * @param stack 
+                     */
+                    func_191521_c(stack: net.minecraft.item.ItemStack): boolean;
+
+                    /**
+                     * func_191975_a
+                     * @param world 
+                     * @param itemStack 
+                     */
+                    placeItemBackInInventory(world: net.minecraft.world.World, itemStack: net.minecraft.item.ItemStack): void;
+                    /**
+                     * placeItemBackInInventory
+                     * @param world 
+                     * @param itemStack 
+                     */
+                    func_191975_a(world: net.minecraft.world.World, itemStack: net.minecraft.item.ItemStack): void;
+
+                    /**
+                     * func_70448_g
+                     */
+                    getCurrentItem(): net.minecraft.item.ItemStack;
+                    /**
+                     * getCurrentItem()
+                     */
+                    func_70448_g(): net.minecraft.item.ItemStack;
+                }
+            }
+            namespace projectile {
+                interface EntityArrow extends Entity {}
+                interface EntityThrowable extends Entity {}
+            }
+            interface Entity {}
+            interface EntityAgeable extends EntityCreature {}
+            interface EntityCreature extends EntityLiving {}
+            interface EntityLiving extends EntityLivingBase {}
+            interface EntityLivingBase extends Entity {}
+        }
+        namespace inventory {
+            interface IInventory extends world.IWorldNameable {
+                getSizeInventory(): number;
+                isEmpty(): number;
+                getStackInSlot(index: number): item.ItemStack;
+            }
+        }
         namespace item {
-            interface EntityItem extends Entity {}
-        }
-        namespace monster {
-            interface EntityMob extends EntityCreature {}
-        }
-        namespace passive {
-            interface EntityAnimal extends EntityAgeable {}
-        }
-        namespace player {
-            interface EntityPlayer extends EntityLivingBase {}
-            interface EntityPlayerMP extends EntityPlayer {}
-        }
-        namespace projectile {
-            interface EntityArrow extends Entity {}
-            interface EntityThrowable extends Entity {}
-        }
-        interface Entity {}
-        interface EntityAgeable extends EntityCreature {}
-        interface EntityCreature extends EntityLiving {}
-        interface EntityLiving extends EntityLivingBase {}
-        interface EntityLivingBase extends Entity {}
-    }
-    namespace server {
-        namespace management {
-            interface PlayerList {
-                addOp(profile: com.mojang.authlib.GameProfile): void;
-                addWhitelistedPlayer(profile: com.mojang.authlib.GameProfile): void;
-                bypassesPlayerLimit(profile: com.mojang.authlib.GameProfile): boolean;
-                canJoin(profile: com.mojang.authlib.GameProfile): boolean;
-                canSendCommands(profile: com.mojang.authlib.GameProfile): boolean;
-                createPlayerForUser(profile: com.mojang.authlib.GameProfile): entity.player.EntityPlayerMP;
-                getAvailablePlayerDat(): string[];
-                getBannedIPs(): UserListIPBans;
-                getBannedPlayers(): UserListBans;
-                getCurrentPlayerCount(): number;
-                getEntityViewDistance(): number;
-                getFormattedListOfPlayers(includeUUIDs: boolean): string;
-                getMaxPlayers(): number;
-                getOnlinePlayerNames(): string[];
-                getOnlinePlayerProfiles(): com.mojang.authlib.GameProfile[];
-                getOppedPlayerNames(): string[];
-                getOppedPlayers(): UserListOps;
-                getPlayerByUsername(username: string): entity.player.EntityPlayerMP;
-                getPlayerByUUID(uuid: java.util.UUID): entity.player.EntityPlayerMP;
-                getPlayers(): java.util.List<entity.player.EntityPlayerMP>;
-                getPlayersMatchingAddress(address: string): java.util.List<entity.player.EntityPlayerMP>;
-                getServerInstance(): MinecraftServer;
-                getViewDistance(): number;
-                getWhitelistedPlayerNames(): string[];
-                getWhitelistedPlayers(): UserListWhitelist;
-                isWhiteListEnabled(): boolean;
+            class EnumRarity implements net.minecraftforge.common.IRarity {
+                static readonly COMMON: EnumRarity;
+                static readonly UNCOMMON: EnumRarity;
+                static readonly RARE: EnumRarity;
+                static readonly EPIC: EnumRarity;
+
+                readonly color: util.text.TextFormatting;
+                readonly rarityName: string;
             }
-            interface PlayerProfileCache {
-                addEntry(profile: com.mojang.authlib.GameProfile): void;
-                getGameProfileForUsername(username: string): com.mojang.authlib.GameProfile;
-                getProfileByUUID(uuid: java.util.UUID): com.mojang.authlib.GameProfile;
-                getUsernames(): string[];
-                load(): void;
-                save(): void;
+            class Item {
+                /**
+                 * func_111206_d
+                 */
+                static getByNameOrId(): Item;
+                /**
+                 * getByNameOrId
+                 */
+                static func_111206_d(): Item;
             }
-            interface UserList<K,V extends UserListEntry<K>> {
-                addEntry(entry: V): void;
-                getEntry(obj: K): V;
-                getKeys(): string[];
-                isEmpty(): boolean;
-                isLanServer(): boolean;
-                readSavedFile(): void;
-                removeEntry(entry: K): void;
-                setLanServer(state: boolean): void;
-                writeChanges(): void;
+            class ItemStack {
+                /**
+                 * func_189868_a
+                 * @param fixer 
+                 */
+                static registerFixes(fixer: any): void;
+                /**
+                 * registerFixes
+                 * @param fixer 
+                 */
+                static func_189868_a(fixer: any): void;
+
+                /**
+                 * func_77970_a
+                 * @param stackA 
+                 * @param stackB 
+                 */
+                static areItemStackTagsEqual(stackA: ItemStack, stackB: ItemStack): boolean;
+                /**
+                 * areItemStackTagsEqual
+                 * @param stackA 
+                 * @param stackB 
+                 */
+                static func_77970_a(stackA: ItemStack, stackB: ItemStack): boolean;
+
+                /**
+                 * func_77989_b
+                 * @param stackA 
+                 * @param stackB 
+                 */
+                static areItemStacksEqual(stackA: ItemStack, stackB: ItemStack): boolean;
+                /**
+                 * areItemStacksEqual
+                 * @param stackA 
+                 * @param stackB 
+                 */
+                static func_77989_b(stackA: ItemStack, stackB: ItemStack): boolean;
+
+                /**
+                 * func_179545_c
+                 * @param stackA 
+                 * @param stackB 
+                 */
+                static areItemsEqual(stackA: ItemStack, stackB: ItemStack): boolean;
+                /**
+                 * areItemStackTagsEqual
+                 * @param stackA 
+                 * @param stackB 
+                 */
+                static func_179545_c(stackA: ItemStack, stackB: ItemStack): boolean;
+
+                /**
+                 * func_185132_d
+                 * @param stackA 
+                 * @param stackB 
+                 */
+                static areItemsEqualIgnoreDurability(stackA: ItemStack, stackB: ItemStack): boolean;
+                /**
+                 * areItemStackTagsEqual
+                 * @param stackA 
+                 * @param stackB 
+                 */
+                static func_185132_d(stackA: ItemStack, stackB: ItemStack): boolean;
+
+                static areItemStacksEqualUsingNBTShareTag(stackA: ItemStack, stackB: ItemStack): boolean;
+                static areItemStackShareTagsEqual(stackA: ItemStack, stackB: ItemStack): boolean;
+
+                /**
+                 * func_77982_d
+                 * @param nbt 
+                 */
+                setTagCompound(nbt: net.minecraft.nbt.NBTTagCompound | null): void;
+                /**
+                 * setTagCompound
+                 * @param nbt 
+                 */
+                func_77982_d(nbt: net.minecraft.nbt.NBTTagCompound | null): void;
             }
-            interface UserListBans extends UserList<com.mojang.authlib.GameProfile, UserListBansEntry> {
-                getBannedProfile(username: string): com.mojang.authlib.GameProfile;
-                isBanned(profile: com.mojang.authlib.GameProfile): boolean;
-            }
-            interface UserListBansEntry extends UserListEntryBan<com.mojang.authlib.GameProfile> {}
-            interface UserListEntry<T> {}
-            interface UserListEntryBan<T> extends UserListEntry<T> {
-                getBanEndDate(): java.util.Date;
-                getBanReason(): string;
-            }
-            interface UserListIPBans extends UserList<string, UserListIPBansEntry> {
-                getBanEntry(address: any): UserListIPBansEntry;
-                isBanned(address: any): boolean;
-            }
-            interface UserListIPBansEntry extends UserListEntryBan<string> {}
-            interface UserListOps extends UserList<com.mojang.authlib.GameProfile, UserListOpsEntry> {
-                bypassesPlayerLimit(profile: com.mojang.authlib.GameProfile): boolean;
-                getGameProfileFromName(username: string): com.mojang.authlib.GameProfile;
-                getPermissionLevel(profile: com.mojang.authlib.GameProfile): number;
-            }
-            interface UserListOpsEntry extends UserListEntry<com.mojang.authlib.GameProfile> {
-                bypassesPlayerLimit(): boolean;
-                getPermissionLevel(): number;
-            }
-            interface UserListWhitelist extends UserList<com.mojang.authlib.GameProfile, UserListWhitelistEntry> {
-                getByName(profileName: string): com.mojang.authlib.GameProfile;
-                isWhitelisted(profile: com.mojang.authlib.GameProfile): boolean;
-            }
-            interface UserListWhitelistEntry extends UserListEntry<com.mojang.authlib.GameProfile> {}
         }
-        interface MinecraftServer {
-            allowSpawnMonsters(): boolean;
-            canCreateBonusChest(enable: boolean): void;
-            canStructureSpawn(): boolean;
-            canUseCommand(permLevel: number, commandName: string): boolean;
-            getAllowNether(): boolean;
-            getBuildLimit(): number;
-            getCanSpawnAnimals(): number;
-            getCanSpawnNPCs(): boolean;
-            getCurrentPlayerCount(): number;
-            getCurrentTime(): number;
-            getDifficulty(): world.EnumDifficulty;
-            getEntityFromUUID(uuid: java.util.UUID): entity.Entity;
-            getEntityWorld(): world.World;
-            getFolderName(): string;
-            getForceGamemode(): boolean;
-            getGameType(): world.GameType;
-            getGuiEnabled(): boolean;
-            getMaxPlayerIdleMinutes(): number;
-            getMaxPlayers(): number;
-            getMaxWorldSize(): number;
-            getMinecraftVersion(): string;
-            getMOTD(): string;
-            getName(): string;
-            getNetworkCompressionThreshold(): number;
-            getOnlinePlayerNames(): string[];
-            getOnlinePlayerProfiles(): com.mojang.authlib.GameProfile[];
-            getOpPermissionLevel(): number;
-            getPlayerList(): management.PlayerList;
-            getPlayerProfileCache(): management.PlayerProfileCache;
-            getPreventProxyConnections(): boolean;
-            getResourcePackHash(): string;
-            getResourcePackUrl(): string;
-            getServer(): MinecraftServer;
-            getServerHostname(): string;
-            getServerModname(): string;
-            getServerOwner(): string;
-            getServerPort(): number;
-            getServerProxy(): any;
-            getSpawnProtectionSize(): number;
-            getUserMessage(): string;
-            getWorld(dimension: number): world.WorldServer;
-            getWorldName(): string;
-        }
-    }
-    namespace util {
-        enum EnumFacing {
-            DOWN,
-            EAST,
-            NORTH,
-            SOUTH,
-            UP,
-            WEST
-        }
-        interface Rotation {
-            add(other: Rotation): Rotation;
-            rotate(facing: EnumFacing): EnumFacing;
-            rotate(a: number, b: number): number;
-        }
-        namespace Rotation {
-            const CLOCKWISE_180: Rotation;
-            const CLOCKWISE_90: Rotation;
-            const COUNTERCLOCKWISE_90: Rotation;
-            const NONE: Rotation;
-            function valueOf(name: string): Rotation;
-            function values(): Rotation[];
-        }
-        namespace math {
-            interface BlockPos extends Vec3i {
-                add(x: number, y: number, z: number): BlockPos;
-                add(vec: Vec3i): BlockPos;
-                crossProduct(vec: Vec3i): BlockPos;
-                down(n: number): BlockPos;
-                down(): BlockPos;
-                east(n: number): BlockPos;
-                east(): BlockPos;
-                north(n: number): BlockPos;
-                north(): BlockPos;
-                offset(facing: EnumFacing, n: number): BlockPos;
-                offset(facing: EnumFacing): BlockPos;
-                rotate(rotation: Rotation): BlockPos;
-                south(n: number): BlockPos;
-                south(): BlockPos;
-                subtract(vec: Vec3i): BlockPos;
-                toImmutable(): BlockPos;
-                toLong(): number;
-                up(n: number): BlockPos;
-                up(): BlockPos;
-                west(n: number): BlockPos;
-                west(): BlockPos;
-            }
-            interface Vec3i {
-                compareTo(other: Vec3i): -1|0|1;
-                crossProduct(other: Vec3i): Vec3i;
-                distanceSq(toX: number, toY: number, toZ: number): number;
-                distanceSq(to: Vec3i): number;
-                distanceSqToCenter(xIn: number, yIn: number, zIn: number): number;
+        namespace nbt {
+            class NBTBase {
+                /**
+                 * func_74737_b
+                 */
+                copy(): this;
+                /**
+                 * copy
+                 */
+                func_74737_b(): this;
                 equals(o: object): boolean;
-                getDistance(xIn: number, yIn: number, zIn: number): number;
-                getX(): number;
-                getY(): number;
-                getZ(): number;
+                /**
+                 * func_74732_a
+                 */
+                getId(): number;
+                /**
+                 * getId
+                 */
+                func_74732_a(): number;
+                /**
+                 * func_193581_j
+                 * @param id 
+                 */
+                static getTypeName(id: number): string;
+                /**
+                 * getTypeName
+                 * @param id 
+                 */
+                static func_193581_j(id: number): string;
                 hashCode(): number;
+                /**
+                 * func_82582_d
+                 */
+                isEmpty(): boolean;
+                /**
+                 * isEmpty
+                 */
+                func_82582_d(): boolean;
                 toString(): string;
             }
+            class NBTTagCompound extends NBTBase {
+                getBoolean(key: string): boolean;
+            }
+        }
+        namespace server {
+            namespace management {
+                interface PlayerList {
+                    addOp(profile: com.mojang.authlib.GameProfile): void;
+                    addWhitelistedPlayer(profile: com.mojang.authlib.GameProfile): void;
+                    bypassesPlayerLimit(profile: com.mojang.authlib.GameProfile): boolean;
+                    canJoin(profile: com.mojang.authlib.GameProfile): boolean;
+                    canSendCommands(profile: com.mojang.authlib.GameProfile): boolean;
+                    createPlayerForUser(profile: com.mojang.authlib.GameProfile): entity.player.EntityPlayerMP;
+                    getAvailablePlayerDat(): string[];
+                    getBannedIPs(): UserListIPBans;
+                    getBannedPlayers(): UserListBans;
+                    getCurrentPlayerCount(): number;
+                    getEntityViewDistance(): number;
+                    getFormattedListOfPlayers(includeUUIDs: boolean): string;
+                    getMaxPlayers(): number;
+                    getOnlinePlayerNames(): string[];
+                    getOnlinePlayerProfiles(): com.mojang.authlib.GameProfile[];
+                    getOppedPlayerNames(): string[];
+                    getOppedPlayers(): UserListOps;
+                    getPlayerByUsername(username: string): entity.player.EntityPlayerMP;
+                    getPlayerByUUID(uuid: java.util.UUID): entity.player.EntityPlayerMP;
+                    getPlayers(): java.util.List<entity.player.EntityPlayerMP>;
+                    getPlayersMatchingAddress(address: string): java.util.List<entity.player.EntityPlayerMP>;
+                    getServerInstance(): MinecraftServer;
+                    getViewDistance(): number;
+                    getWhitelistedPlayerNames(): string[];
+                    getWhitelistedPlayers(): UserListWhitelist;
+                    isWhiteListEnabled(): boolean;
+                }
+                interface PlayerProfileCache {
+                    addEntry(profile: com.mojang.authlib.GameProfile): void;
+                    getGameProfileForUsername(username: string): com.mojang.authlib.GameProfile;
+                    getProfileByUUID(uuid: java.util.UUID): com.mojang.authlib.GameProfile;
+                    getUsernames(): string[];
+                    load(): void;
+                    save(): void;
+                }
+                interface UserList<K,V extends UserListEntry<K>> {
+                    addEntry(entry: V): void;
+                    getEntry(obj: K): V;
+                    getKeys(): string[];
+                    isEmpty(): boolean;
+                    isLanServer(): boolean;
+                    readSavedFile(): void;
+                    removeEntry(entry: K): void;
+                    setLanServer(state: boolean): void;
+                    writeChanges(): void;
+                }
+                interface UserListBans extends UserList<com.mojang.authlib.GameProfile, UserListBansEntry> {
+                    getBannedProfile(username: string): com.mojang.authlib.GameProfile;
+                    isBanned(profile: com.mojang.authlib.GameProfile): boolean;
+                }
+                interface UserListBansEntry extends UserListEntryBan<com.mojang.authlib.GameProfile> {}
+                interface UserListEntry<T> {}
+                interface UserListEntryBan<T> extends UserListEntry<T> {
+                    getBanEndDate(): java.util.Date;
+                    getBanReason(): string;
+                }
+                interface UserListIPBans extends UserList<string, UserListIPBansEntry> {
+                    getBanEntry(address: any): UserListIPBansEntry;
+                    isBanned(address: any): boolean;
+                }
+                interface UserListIPBansEntry extends UserListEntryBan<string> {}
+                interface UserListOps extends UserList<com.mojang.authlib.GameProfile, UserListOpsEntry> {
+                    bypassesPlayerLimit(profile: com.mojang.authlib.GameProfile): boolean;
+                    getGameProfileFromName(username: string): com.mojang.authlib.GameProfile;
+                    getPermissionLevel(profile: com.mojang.authlib.GameProfile): number;
+                }
+                interface UserListOpsEntry extends UserListEntry<com.mojang.authlib.GameProfile> {
+                    bypassesPlayerLimit(): boolean;
+                    getPermissionLevel(): number;
+                }
+                interface UserListWhitelist extends UserList<com.mojang.authlib.GameProfile, UserListWhitelistEntry> {
+                    getByName(profileName: string): com.mojang.authlib.GameProfile;
+                    isWhitelisted(profile: com.mojang.authlib.GameProfile): boolean;
+                }
+                interface UserListWhitelistEntry extends UserListEntry<com.mojang.authlib.GameProfile> {}
+            }
+            interface MinecraftServer {
+                allowSpawnMonsters(): boolean;
+                canCreateBonusChest(enable: boolean): void;
+                canStructureSpawn(): boolean;
+                canUseCommand(permLevel: number, commandName: string): boolean;
+                getAllowNether(): boolean;
+                getBuildLimit(): number;
+                getCanSpawnAnimals(): number;
+                getCanSpawnNPCs(): boolean;
+                getCurrentPlayerCount(): number;
+                getCurrentTime(): number;
+                getDifficulty(): world.EnumDifficulty;
+                getEntityFromUUID(uuid: java.util.UUID): entity.Entity;
+                getEntityWorld(): world.World;
+                getFolderName(): string;
+                getForceGamemode(): boolean;
+                getGameType(): world.GameType;
+                getGuiEnabled(): boolean;
+                getMaxPlayerIdleMinutes(): number;
+                getMaxPlayers(): number;
+                getMaxWorldSize(): number;
+                getMinecraftVersion(): string;
+                getMOTD(): string;
+                getName(): string;
+                getNetworkCompressionThreshold(): number;
+                getOnlinePlayerNames(): string[];
+                getOnlinePlayerProfiles(): com.mojang.authlib.GameProfile[];
+                getOpPermissionLevel(): number;
+                getPlayerList(): management.PlayerList;
+                getPlayerProfileCache(): management.PlayerProfileCache;
+                getPreventProxyConnections(): boolean;
+                getResourcePackHash(): string;
+                getResourcePackUrl(): string;
+                getServer(): MinecraftServer;
+                getServerHostname(): string;
+                getServerModname(): string;
+                getServerOwner(): string;
+                getServerPort(): number;
+                getServerProxy(): any;
+                getSpawnProtectionSize(): number;
+                getUserMessage(): string;
+                getWorld(dimension: number): world.WorldServer;
+                getWorldName(): string;
+            }
+        }
+        namespace util {
+            namespace math {
+                interface BlockPos extends Vec3i {
+                    add(x: number, y: number, z: number): BlockPos;
+                    add(vec: Vec3i): BlockPos;
+                    crossProduct(vec: Vec3i): BlockPos;
+                    down(n: number): BlockPos;
+                    down(): BlockPos;
+                    east(n: number): BlockPos;
+                    east(): BlockPos;
+                    north(n: number): BlockPos;
+                    north(): BlockPos;
+                    offset(facing: EnumFacing, n: number): BlockPos;
+                    offset(facing: EnumFacing): BlockPos;
+                    rotate(rotation: Rotation): BlockPos;
+                    south(n: number): BlockPos;
+                    south(): BlockPos;
+                    subtract(vec: Vec3i): BlockPos;
+                    toImmutable(): BlockPos;
+                    toLong(): number;
+                    up(n: number): BlockPos;
+                    up(): BlockPos;
+                    west(n: number): BlockPos;
+                    west(): BlockPos;
+                }
+                interface Vec3i {
+                    compareTo(other: Vec3i): -1|0|1;
+                    crossProduct(other: Vec3i): Vec3i;
+                    distanceSq(toX: number, toY: number, toZ: number): number;
+                    distanceSq(to: Vec3i): number;
+                    distanceSqToCenter(xIn: number, yIn: number, zIn: number): number;
+                    equals(o: object): boolean;
+                    getDistance(xIn: number, yIn: number, zIn: number): number;
+                    getX(): number;
+                    getY(): number;
+                    getZ(): number;
+                    hashCode(): number;
+                    toString(): string;
+                }
+            }
+            namespace text {
+                class TextComponentBase implements ITextComponent {
+                    static createDeepCopyIterator(components: java.lang.Iterable<ITextComponent>): java.util.Iterator<ITextComponent>;
+                }
+                interface ITextComponent extends java.lang.Iterable<ITextComponent> {
+                    setStyle(style: Style): ITextComponent;
+                    getStyle(): Style;
+                    appendText(text: string): ITextComponent;
+                    appendSibling(component: ITextComponent): ITextComponent;
+                    getUnformattedComponentText(): string;
+                    getUnformattedText(): string;
+                    getFormattedText(): string;
+                    getSiblings(): java.util.List<ITextComponent>;
+                    createCopy(): ITextComponent;
+                }
+                class Style {}
+                class TextFormatting {
+                    static readonly BLACK: TextFormatting;
+                    static readonly DARK_BLUE: TextFormatting;
+                    static readonly DARK_GREEN: TextFormatting;
+                    static readonly DARK_AQUA: TextFormatting;
+                    static readonly DARK_RED: TextFormatting;
+                    static readonly DARK_PURPLE: TextFormatting;
+                    static readonly GOLD: TextFormatting;
+                    static readonly GRAY: TextFormatting;
+                    static readonly DARK_GRAY: TextFormatting;
+                    static readonly BLUE: TextFormatting;
+                    static readonly GREEN: TextFormatting;
+                    static readonly AQUA: TextFormatting;
+                    static readonly RED: TextFormatting;
+                    static readonly LIGHT_PURPLE: TextFormatting;
+                    static readonly YELLOW: TextFormatting;
+                    static readonly WHITE: TextFormatting;
+                    static readonly OBFUSCATED: TextFormatting;
+                    static readonly BOLD: TextFormatting;
+                    static readonly STRIKETHROUGH: TextFormatting;
+                    static readonly UNDERLINE: TextFormatting;
+                    static readonly ITALIC: TextFormatting;
+                    static readonly RESET: TextFormatting;
+
+                    getColorIndex(): number;
+                    isFancyStyling(): boolean;
+                    isColor(): boolean;
+                    getFriendlyName(): string;
+                    toString(): string;
+
+                    static getTextWithoutFormattingCodes(text: string | null): string | null;
+                    static getValueByName(friendlyName: string | null): TextFormatting | null;
+                    static fromColorIndex(index: number): TextFormatting | null;
+                    static getValidValues(allowColors: boolean, allowFancyStyles: boolean): java.util.Collection<string>;
+                }
+            }
+            enum EnumFacing {
+                DOWN,
+                EAST,
+                NORTH,
+                SOUTH,
+                UP,
+                WEST
+            }
+            class ResourceLocation {
+                constructor(resourceName: string);
+                constructor(namespaceIn: string, path: string);
+
+                static splitObjectName(toSplit: string): [string, string];
+
+                getPath(): string;
+                getNamespace(): string;
+                toString(): string;
+                equals(o: object): boolean;
+                hashCode(): number;
+                compareTo(other: ResourceLocation): -1|0|1;
+            }
+            interface Rotation {
+                add(other: Rotation): Rotation;
+                rotate(facing: EnumFacing): EnumFacing;
+                rotate(a: number, b: number): number;
+            }
+            namespace Rotation {
+                const CLOCKWISE_180: Rotation;
+                const CLOCKWISE_90: Rotation;
+                const COUNTERCLOCKWISE_90: Rotation;
+                const NONE: Rotation;
+                function valueOf(name: string): Rotation;
+                function values(): Rotation[];
+            }
+            class SoundEvent extends net.minecraftforge.registries.IForgeRegistryEntry.Impl<SoundEvent> {
+                getSoundName(): ResourceLocation;
+            }
+        }
+        namespace world {
+            interface EnumDifficulty {
+                getDifficultyId(): number;
+                getDifficultyResourceKey(): string;
+            }
+            namespace EnumDifficulty {
+                const EASY: EnumDifficulty;
+                const HARD: EnumDifficulty;
+                const NORMAL: EnumDifficulty;
+                const PEACEFUL: EnumDifficulty;
+
+                function getDifficultyEnum(id: number): EnumDifficulty;
+                function valueOf(name: string): EnumDifficulty;
+                function values(): EnumDifficulty[];
+            }
+            interface GameType {
+                getID(): number;
+                getName(): string;
+                hasLimitedInteractions(): boolean;
+                isCreative(): boolean;
+                isSurvivalOrAdventure(): boolean;
+            }
+            namespace GameType {
+                const ADVENTURE: GameType;
+                const CREATIVE: GameType;
+                const NOT_SET: GameType;
+                const SPECTATOR: GameType;
+                const SURVIVAL: GameType;
+
+                function getByID(id: number): GameType;
+                function getByName(name: string): GameType;
+                function parseGameTypeWithDefault(id: number, fallback: GameType): GameType;
+                function parseGameTypeWithDefault(name: string, fallback: GameType): GameType;
+                function valueOf(name: string): GameType;
+                function values(): GameType[];
+            }
+            interface IWorldNameable {
+                getName(): string;
+                hasCustomName(): boolean;
+                getDisplayName(): util.text.ITextComponent;
+            }
+            interface World {}
+            interface WorldServer extends World {
+                addBlockEvent(pos: util.math.BlockPos, blockIn: any, eventID: number, eventParam: number): void;
+                addWeatherEffect(entityIn: entity.Entity): boolean;
+
+                getMinecraftServer(): server.MinecraftServer;
+            }
         }
     }
-    namespace world {
-        interface EnumDifficulty {
-            getDifficultyId(): number;
-            getDifficultyResourceKey(): string;
-        }
-        namespace EnumDifficulty {
-            const EASY: EnumDifficulty;
-            const HARD: EnumDifficulty;
-            const NORMAL: EnumDifficulty;
-            const PEACEFUL: EnumDifficulty;
 
-            function getDifficultyEnum(id: number): EnumDifficulty;
-            function valueOf(name: string): EnumDifficulty;
-            function values(): EnumDifficulty[];
+    namespace minecraftforge {
+        namespace common {
+            interface IRarity {
+                getColor(): net.minecraft.util.text.TextFormatting;
+                getName(): string;
+            }
         }
-        interface GameType {
-            getID(): number;
-            getName(): string;
-            hasLimitedInteractions(): boolean;
-            isCreative(): boolean;
-            isSurvivalOrAdventure(): boolean;
-        }
-        namespace GameType {
-            const ADVENTURE: GameType;
-            const CREATIVE: GameType;
-            const NOT_SET: GameType;
-            const SPECTATOR: GameType;
-            const SURVIVAL: GameType;
+        namespace fluids {
+            class Fluid {
+                static readonly BUCKET_VOLUME: 1000;
 
-            function getByID(id: number): GameType;
-            function getByName(name: string): GameType;
-            function parseGameTypeWithDefault(id: number, fallback: GameType): GameType;
-            function parseGameTypeWithDefault(name: string, fallback: GameType): GameType;
-            function valueOf(name: string): GameType;
-            function values(): GameType[];
-        }
-        interface World {}
-        interface WorldServer extends World {
-            addBlockEvent(pos: util.math.BlockPos, blockIn: any, eventID: number, eventParam: number): void;
-            addWeatherEffect(entityIn: entity.Entity): boolean;
+                constructor(
+                    fluidName: string,
+                    still: net.minecraft.util.ResourceLocation,
+                    flowing: net.minecraft.util.ResourceLocation,
+                    overlay?: net.minecraft.util.ResourceLocation | null,
+                    color?: number
+                );
 
-            getMinecraftServer(): server.MinecraftServer;
+                setUnlocalizedname(unlocalizedName: string): Fluid;
+                setBlock(block: net.minecraft.block.Block): Fluid;
+                setLuminosity(luminosity: number): Fluid;
+                setDensity(density: number): Fluid;
+                setTemperature(temperature: number): Fluid;
+                setViscosity(viscosity: number): Fluid;
+                setGaseous(isGaseous: boolean): Fluid;
+                setRarity(rarity: net.minecraft.item.EnumRarity): Fluid;
+                setFillSound(fillSound: net.minecraft.util.SoundEvent): Fluid;
+                setEmptySound(emptySound: net.minecraft.util.SoundEvent): Fluid;
+                setColor(color: number): Fluid;
+                getName(): string;
+                getBlock(): net.minecraft.block.Block;
+                canBePlacedInWorld(): boolean;
+                isLighterThanAir(): boolean;
+                doesVaporize(fluidStack: FluidStack): boolean;
+                vaporize(
+                    player: net.minecraft.entity.player.EntityPlayer | null,
+                    world: net.minecraft.world.World,
+                    pos: net.minecraft.util.math.BlockPos,
+                    fluidStack: FluidStack
+                ): void;
+                getLocalizedName(stack: FluidStack): string;
+                getUnlocalizedName(stack: FluidStack): string;
+                getUnlocalizedName(): string;
+                getLuminosity(): number;
+                getDensity(): number;
+                getTemperature(): number;
+                getViscosity(): number;
+                isGaseous(): number;
+                getRarity(): net.minecraft.item.EnumRarity;
+                getColor(): number;
+                getStill(): net.minecraft.util.ResourceLocation;
+                getFlowing(): net.minecraft.util.ResourceLocation;
+                getOverlay(): net.minecraft.util.ResourceLocation | null;
+                getFillSound(): net.minecraft.util.SoundEvent;
+                getEmptySound(): net.minecraft.util.SoundEvent;
+            }
+            class FluidStack {
+                amount: number;
+                tag: net.minecraft.nbt.NBTTagCompound;
+
+                constructor(fluid: Fluid | FluidStack, amount: number, nbt?: net.minecraft.nbt.NBTTagCompound);
+                static loadFluidStackFromNBT(nbt: net.minecraft.nbt.NBTTagCompound): FluidStack | null;
+
+                writeToNBT(nbt: net.minecraft.nbt.NBTTagCompound): net.minecraft.nbt.NBTTagCompound;
+                getFluid(): Fluid;
+                getLocalizedName(): string;
+                getUnlocalizedName(): string;
+                copy(): FluidStack;
+                isFluidEqual(other: FluidStack | null): boolean;
+                isFluidEqual(other: net.minecraft.item.ItemStack): boolean;
+                static areFluidStackTagsEqual(stack1: FluidStack | null, stack2: FluidStack | null): boolean;
+                containsFluid(other: FluidStack): boolean;
+                isFluidStackIdentical(other: FluidStack): boolean;
+            }
+        }
+        namespace registries {
+            interface IForgeRegistryEntry<V> {
+                setRegistryName(name: net.minecraft.util.ResourceLocation): V;
+                getRegistryName(): net.minecraft.util.ResourceLocation;
+                getRegistryType(): java.lang.Class<V>;
+            }
+            namespace IForgeRegistryEntry {
+                class Impl<T extends IForgeRegistryEntry<T>> implements IForgeRegistryEntry<T> {
+                    readonly delegate: IRegistryDelegate<T>;
+                }
+            }
+            interface IRegistryDelegate<T> {
+                get(): T;
+                name(): net.minecraft.util.ResourceLocation;
+                type(): java.lang.Class<T>;
+            }
         }
     }
 }
 
 declare namespace java {
     namespace lang {
+        namespace reflect {
+            interface Method {
+                getModifiers(): number;
+            }
+            namespace Modifier {
+                const ABSTRACT: 1024;
+                const FINAL: 16;
+                const INTERFACE: 512;
+                const NATIVE: 256;
+                const PRIVATE: 2;
+                const PROTECTED: 4;
+                const PUBLIC: 1;
+                const STATIC: 8;
+                const STRICT: 2048;
+                const SYNCHRONIZED: 32;
+                const TRANSIENT: 128;
+                const VOLATILE: 64;
+
+                function classModifiers(): number;
+                function constructorModifiers(): number;
+                function fieldModifiers(): number;
+                function interfaceModifiers(): number;
+                function isAbstract(mod: number): boolean;
+                function isFinal(mod: number): boolean;
+                function isInterface(mod: number): boolean;
+                function isNative(mod: number): boolean;
+                function isPrivate(mod: number): boolean;
+                function isProtected(mod: number): boolean;
+                function isPublic(mod: number): boolean;
+                function isStatic(mod: number): boolean;
+                function isStrict(mod: number): boolean;
+                function isSynchronized(mod: number): boolean;
+                function isTransient(mod: number): boolean;
+                function isVolatile(mod: number): boolean;
+                function methodModifiers(): number;
+                function parameterModifiers(): number;
+                function toString(mod: number): string;
+            }
+        }
+        class Class<T> {
+            getDeclaredMethods(): reflect.Method[];
+        }
         interface Iterable<T> {
             forEach(action: func.Consumer<T>): void;
             iterator(): util.Iterator<T>;

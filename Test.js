@@ -12,3 +12,11 @@ function getAllPlayers(){
     }
     return allPlayers;
 }
+
+/**
+ * 
+ * @param {event.PlayerEvent.DiedEvent} event 
+ */
+function died(event) {
+    var test = event.player.getNbt().getMCNBT().copy();
+}
