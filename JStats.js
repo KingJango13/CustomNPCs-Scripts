@@ -179,7 +179,6 @@ function jstat_cmd(event){
                 item = p.getInventory().getSlot(intArg(2));
             }
             item.getNbt().setBoolean("Unbreakable",true);
-            item.setInteger("HideFlags", 4);
             break;
         }
         case "tp": {
