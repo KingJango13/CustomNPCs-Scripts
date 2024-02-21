@@ -109,6 +109,10 @@ function jstat_cmd(event){
     var intArg = function(index) {
         return msgArgs[index] != null ? parseInt(msgArgs[index]) : null;
     }
+
+    if(!playerJangoData[p.getUUID()]) {
+        loadJangoData(p);
+    }
     
     switch(msgArgs[1]){
         case "gm": {
@@ -258,7 +262,7 @@ function jstat_cmd(event){
                     var z = parseCoord(6, p.getBlockZ());
                     var dim = p.getWorld().getDimension();
                     p.message("Setting waypoint \"" + msgArgs[3] + "\" in dimension " + dim.getName() + " to " + stringifyPos(x, y, z));
-                    waypoints[msgArgs[3]] = [intArg(4), intArg(5), intArg(6), dim.getId()];
+                    waypoints[msgArgs[3]] = [x, y, z, dim.getId()];
                     break;
                 }
                 case "tp": {
