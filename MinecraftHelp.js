@@ -17,7 +17,10 @@ var ItemStack = Java.type("net.minecraft.item.ItemStack");
  * @type {typeof net.minecraft.item.Item}
  */
 var Item = Java.type("net.minecraft.item.Item");
-importClass("net.minecraft.nbt.NBTTagCompound");
+/**
+ * @type {typeof net.minecraft.nbt.NBTTagCompound}
+ */
+var NBTTagCompound = Java.type("net.minecraft.nbt.NBTTagCompound");
 
 importClass("net.minecraftforge.fluids.FluidRegistry");
 

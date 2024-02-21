@@ -1,6 +1,6 @@
 /// <reference path="API/index.d.ts" />
-load("http://127.0.0.1:5500/MinecraftHelp.js")
-//load("https://kingjango13.github.io/CustomNPCs-Scripts/MinecraftHelp.js");
+//load("http://127.0.0.1:5500/MinecraftHelp.js")
+load("https://kingjango13.github.io/CustomNPCs-Scripts/MinecraftHelp.js");
 
 /**
  * 

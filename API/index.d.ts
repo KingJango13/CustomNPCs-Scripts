@@ -2189,7 +2189,214 @@ declare namespace net {
                 toString(): string;
             }
             class NBTTagCompound extends NBTBase {
-                getBoolean(key: string): boolean;
+                /**
+                 * func_74774_a
+                 * @param key 
+                 * @param byte 
+                 */
+                setByte(key: string, byte: number): void;
+                /**
+                 * setByte
+                 * @param key 
+                 * @param byte 
+                 */
+                func_74774_a(key: string, byte: number): void;
+
+                /**
+                 * func_74757_a
+                 * @param key 
+                 * @param bool 
+                 */
+                setBoolean(key: string, bool: boolean): void;
+                /**
+                 * setBoolean
+                 * @param key 
+                 * @param bool 
+                 */
+                func_74757_a(key: string, bool: boolean): void;
+
+                /**
+                 * func_74777_a
+                 * @param key 
+                 * @param short 
+                 */
+                setShort(key: string, short: number): void;
+                /**
+                 * setShort
+                 * @param key 
+                 * @param short 
+                 */
+                func_74777_a(key: string, short: number): void;
+
+                /**
+                 * func_74768_a
+                 * @param key 
+                 * @param int 
+                 */
+                setInteger(key: string, int: number): void;
+                /**
+                 * setInteger
+                 * @param key 
+                 * @param int 
+                 */
+                func_74768_a(key: string, int: number): void;
+
+                /**
+                 * func_74772_a
+                 * @param key 
+                 * @param long 
+                 */
+                setLong(key: string, long: number): void;
+                /**
+                 * setLong
+                 * @param key 
+                 * @param long 
+                 */
+                func_74772_a(key: string, long: number): void;
+
+                /**
+                 * func_74776_a
+                 * @param key 
+                 * @param float 
+                 */
+                setFloat(key: string, float: number): void;
+                /**
+                 * setFloat
+                 * @param key 
+                 * @param float 
+                 */
+                func_74776_a(key: string, float: number): void;
+
+                /**
+                 * func_74780_a
+                 * @param key 
+                 * @param double 
+                 */
+                setDouble(key: string, double: number): void;
+                /**
+                 * setDouble
+                 * @param key 
+                 * @param double 
+                 */
+                func_74780_a(key: string, double: number): void;
+
+                /**
+                 * func_74773_a
+                 * @param key 
+                 * @param byteArray 
+                 */
+                setByteArray(key: string, byteArray: number[]): void;
+                /**
+                 * setByteArray
+                 * @param key 
+                 * @param byteArray 
+                 */
+                func_74773_a(key: string, byteArray: number[]): void;
+
+                /**
+                 * func_74778_a
+                 * @param key 
+                 * @param str 
+                 */
+                setString(key: string, str: string): void;
+                /**
+                 * setString
+                 * @param key 
+                 * @param str 
+                 */
+                func_74778_a(key: string, str: string): void;
+
+                /**
+                 * func_186854_a
+                 * @param key 
+                 * @param uuid 
+                 */
+                setUniqueId(key: string, uuid: java.util.UUID): void;
+                /**
+                 * setUniqueId
+                 * @param key 
+                 * @param uuid 
+                 */
+                func_186854_a(key: string, uuid: java.util.UUID): void;
+
+                /**
+                 * func_74783_a
+                 * @param key 
+                 * @param intArray 
+                 */
+                setIntegerArray(key: string, intArray: number[]): void;
+                /**
+                 * setIntegerArray
+                 * @param key 
+                 * @param intArray 
+                 */
+                func_74783_a(key: string, intArray: number[]): void;
+
+                /**
+                 * func_74771_c
+                 * @param key 
+                 */
+                getByte(key: string): number;
+                /**
+                 * getByte
+                 * @param key 
+                 */
+                func_74771_c(key: string): number;
+
+                /**
+                 * func_74765_d
+                 * @param key 
+                 */
+                getShort(key: string): number;
+                /**
+                 * getShort
+                 * @param key 
+                 */
+                func_74765_d(key: string): number;
+
+                /**
+                 * func_74762_e
+                 * @param key 
+                 */
+                getInteger(key: string): number;
+                /**
+                 * getInteger
+                 * @param key 
+                 */
+                func_74762_e(key: string): number;
+
+                /**
+                 * func_74763_f
+                 * @param key 
+                 */
+                getLong(key: string): number;
+                /**
+                 * getLong
+                 * @param key 
+                 */
+                func_74763_f(key: string): number;
+
+                /**
+                 * func_74760_g
+                 * @param key 
+                 */
+                getFloat(key: string): number;
+                /**
+                 * getFloat
+                 * @param key 
+                 */
+                func_74760_g(key: string): number;
+
+                /**
+                 * func_74769_h
+                 * @param key 
+                 */
+                getDouble(key: string): number;
+                /**
+                 * getDouble
+                 * @param key 
+                 */
+                func_74769_h(key: string): number;
             }
         }
         namespace server {
