@@ -34,21 +34,19 @@ function chat(event){
     }
 }
 
-var playerJangoData = {};
 /**
  * 
- * @param {entity.IPlayer} player 
+ * @param {entity.IPlayer | net.minecraft.entity.player.EntityPlayer} player 
  */
-function loadJangoData(player) {
-    playerJangoData[player.getUUID()] = JSON.parse(player.getStoreddata().get("jango") || "{}");
-}
-
-/**
- * 
- * @param {entity.IPlayer} player 
- */
-function saveJangoData(player) {
-    player.getStoreddata().put("jango", JSON.stringify(playerJangoData[player.getUUID()] || {}));
+function getJangoData(player) {
+    if(isIPlayer(player)) {
+        player = player.getMCEntity();
+    }
+    var data = player.getEntityData();
+    if(!data.func_150297_b("jango", getNBTTypeID("COMPOUND"))) {
+        data.func_74782_a("jango", new NBTTagCompound());
+    }
+    return data.func_74775_l("jango");
 }
 
 /**
@@ -56,15 +54,7 @@ function saveJangoData(player) {
  * @param {event.PlayerEvent.LoginEvent} event 
  */
 function login(event) {
-    loadJangoData(event.player);
-}
-
-/**
- * 
- * @param {event.PlayerEvent.LogoutEvent} event 
- */
-function logout(event) {
-    saveJangoData(event.player);
+    getJangoData(event.player);
 }
 
 function stringifyPos(xOrPos, y, z) {
@@ -108,10 +98,6 @@ function jstat_cmd(event){
     }
     var intArg = function(index) {
         return msgArgs[index] != null ? parseInt(msgArgs[index]) : null;
-    }
-
-    if(!playerJangoData[p.getUUID()]) {
-        loadJangoData(p);
     }
     
     switch(msgArgs[1]){
@@ -241,7 +227,10 @@ function jstat_cmd(event){
             break;
         }
         case "waypoint": {
-            var waypoints = playerJangoData[p.getUUID()].waypoints || {};
+            if(!getJangoData(p).func_150297_b("waypoints", getNBTTypeID("COMPOUND"))) {
+                getJangoData(p).func_74782_a("waypoints", new NBTTagCompound());
+            }
+            var waypoints = getJangoData(p).func_74775_l("waypoints");
             switch(msgArgs[2]) {
                 case "set": {
                     if(msgArgs.length < 4) {
@@ -256,12 +245,17 @@ function jstat_cmd(event){
                         }
                         return intArg(argIndex);
                     };
+                    if(waypoints.func_150297_b(msgArgs[3], getNBTTypeID("COMPOUND"))) {
+                        p.message("You already have a waypoint named \"" + msgArgs[3] + "\"");
+                        p.message("You must delete or rename this before setting the waypoint");
+                        break;
+                    }
                     var x = parseCoord(4, p.getBlockX());
                     var y = parseCoord(5, p.getBlockY());
                     var z = parseCoord(6, p.getBlockZ());
                     var dim = p.getWorld().getDimension();
                     p.message("Setting waypoint \"" + msgArgs[3] + "\" in dimension " + dim.getName() + " to " + stringifyPos(x, y, z));
-                    waypoints[msgArgs[3]] = [x, y, z, dim.getId()];
+                    getJangoData(p).func_74775_l("waypoints").func_74782_a(msgArgs[3], posToNBT(x, y, z, dim.getId()));
                     break;
                 }
                 case "tp": {
@@ -270,27 +264,25 @@ function jstat_cmd(event){
                         break;
                     }
                     var targetName = msgArgs[3];
-                    var waypoint = waypoints[targetName];
-                    if(waypoint == null) {
+                    if(waypoints.func_150297_b(targetName, getNBTTypeID("COMPOUND"))) {
                         p.message("You have no waypoint named \"" + targetName + "\"");
                         break;
                     }
-                    if(waypoint[3] !== p.getWorld().getDimension().getId()) {
+                    var waypoint = posFromNBT(waypoints.func_74775_l(targetName));
+                    if(waypoint.dim !== p.getWorld().getDimension().getId()) {
                         p.message("Cross-dimensional teleportation is not yet supported");
                         break;
                     }
                     p.message("Teleporting to waypoint \"" + targetName + "\"...");
-                    p.setPos(event.API.getIPos(waypoint[0], waypoint[1], waypoint[2]));
+                    p.setPos(event.API.getIPos(waypoint.x, waypoint.y, waypoint.z));
                     break;
                 }
                 case "list": {
                     p.message("Your waypoints:");
-                    for(var wp in waypoints) {
-                        if(!Array.isArray(waypoints[wp])) continue;
-                        p.message(
-                            wp + ": [" + waypoints[wp][0] + ", " + waypoints[wp][1] + ", " + waypoints[wp][2] + "] (" +
-                            event.API.getIWorld(waypoints[wp][3]).getDimension().getName() + ")"
-                        );
+                    var wayPointNames = waypoints.func_150296_c();
+                    for(var i = 0; i < wayPointNames.size(); i++) {
+                        var wp = posFromNBT(waypoints.func_74775_l(wayPointNames[i]));
+                        p.message(wayPointNames[i] + ": " + stringifyPos(wp) + event.API.getIWorld(wp.dim).getDimension().getName() + ")");
                     }
                     p.message("");
                     break;
@@ -301,12 +293,12 @@ function jstat_cmd(event){
                         break;
                     }
                     var targetName = msgArgs[3];
-                    if(!(targetName in waypoints)) {
+                    if(!waypoints.func_150297_b(targetName, getNBTTypeID("COMPOUND"))) {
                         p.message("You have no waypoint named \"" + targetName + "\"");
                         break;
                     }
                     p.message("Removing waypoint \"" + targetName + "\"");
-                    delete waypoints[targetName];
+                    waypoints.func_82580_o(targetName);
                     break;
                 }
                 case "distanceTo": {
@@ -315,17 +307,18 @@ function jstat_cmd(event){
                         break;
                     }
                     var targetName = msgArgs[3];
-                    if(!(targetName in waypoints)) {
+                    if(!waypoints.func_150297_b(targetName, getNBTTypeID("COMPOUND"))) {
                         p.message("You have no waypoint named \"" + targetName + "\"");
                         break;
                     }
-                    if(p.getWorld().getDimension().getId() !== waypoints[targetName][3]) {
+                    var wp = posFromNBT(waypoints.func_74775_l(targetName));
+                    if(p.getWorld().getDimension().getId() !== wp.dim) {
                         p.message("Unable to measure distance across dimensions");
                         break;
                     }
-                    var dX = waypoints[targetName][0] - p.getBlockX();
-                    var dY = waypoints[targetName][1] - p.getBlockY();
-                    var dZ = waypoints[targetName][2] - p.getBlockZ();
+                    var dX = wp.x - p.getBlockX();
+                    var dY = wp.y - p.getBlockY();
+                    var dZ = wp.z - p.getBlockZ();
                     var distanceStr = (Math.round(Math.sqrt(dX*dX + dY*dY + dZ*dZ) * 100) / 100).toString();
                     var decimalIndex = distanceStr.indexOf(".");
                     if(decimalIndex !== -1) {
@@ -339,18 +332,18 @@ function jstat_cmd(event){
                         p.message("Usage: jstats waypoint rename <oldName> <newName>");
                         break;
                     }
-                    if(!(msgArgs[3] in waypoints)) {
+                    if(!waypoints.func_150297_b(msgArgs[3])) {
                         p.message("You have no waypoint named \"" + msgArgs[3] + "\"");
                         break;
                     }
-                    if(msgArgs[4] in waypoints) {
+                    if(waypoints.func_150297_b(msgArgs[4])) {
                         p.message("You already have a waypoint named \"" + msgArgs[4] + "\"");
                         p.message("You must delete or rename this before renaming the other waypoint");
                         break;
                     }
                     p.message("Renaming waypoint \"" + msgArgs[3] + "\" to \"" + msgArgs[4] + "\"");
-                    waypoints[msgArgs[4]] = waypoints[msgArgs[3]];
-                    delete waypoints[msgArgs[3]];
+                    waypoints.func_74782_a(msgArgs[4], waypoints.func_74775_l(msgArgs[3]));
+                    waypoints.func_82580_o(msgArgs[3]);
                     break;
                 }
                 default: {
@@ -364,7 +357,6 @@ function jstat_cmd(event){
                     break;
                 }
             }
-            playerJangoData[p.getUUID()].waypoints = waypoints;
             break;
         }
         case "itemNBT": {
@@ -405,13 +397,6 @@ function jstat_cmd(event){
                     break;
                 }
             }
-            break;
-        }
-        case "reloadPlayerData": {
-            p.message("Reloading player data...");
-            saveJangoData(p);
-            loadJangoData(p);
-            p.message("Player data reloaded");
             break;
         }
         case "giveItem": {

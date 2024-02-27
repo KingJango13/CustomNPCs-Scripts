@@ -143,3 +143,57 @@ function getSelectedItem(player) {
         return player.inventory.getCurrentItem();
     return player.field_71071_by.func_70448_g();
 }
+
+/**
+ * 
+ * @param {string} name 
+ */
+function getNBTTypeID(name) {
+    switch (name.toUpperCase()) {
+        case "BYTE": return 1;
+        case "SHORT": return 2;
+        case "INT": return 3;
+        case "LONG": return 4;
+        case "FLOAT": return 5;
+        case "DOUBLE": return 6;
+        case "BYTE[]": return 7;
+        case "STRING": return 8;
+        case "LIST": return 9;
+        case "COMPOUND": return 10;
+        case "INT[]": return 11;
+        case "LONG[]": return 12;
+        default: return 0;
+    }
+}
+
+/**
+ * 
+ * @param {unknown} p
+ * @returns {p is entity.IPlayer} 
+ */
+function isIPlayer(p) {
+    return typeof p.getMCEntity === "function" && typeof p.getGamemode === "function" &&
+        (p.getGamemode() === 0 || p.getGamemode() === 1 || p.getGamemode() === 1 || p.getGamemode() === 3);
+}
+
+function posToNBT(x, y, z, dim) {
+    var nbt = new NBTTagCompound();
+    nbt.func_74780_a("x", x);
+    nbt.func_74780_a("y", y);
+    nbt.func_74780_a("z", z);
+    nbt.func_74768_a("dim", dim);
+    return nbt;
+}
+
+/**
+ * 
+ * @param {net.minecraft.nbt.NBTTagCompound} posNBT 
+ */
+function posFromNBT(posNBT) {
+    return {
+        x: posNBT.func_74769_h("x"),
+        y: posNBT.func_74769_h("y"),
+        z: posNBT.func_74769_h("z"),
+        dim: posNBT.func_74762_e("dim")
+    };
+}

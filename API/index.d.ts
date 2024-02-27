@@ -2036,7 +2036,21 @@ declare namespace net {
                 interface EntityArrow extends Entity {}
                 interface EntityThrowable extends Entity {}
             }
-            interface Entity {}
+            interface Entity {
+                /**
+                 * func_184197_b
+                 * @param tag 
+                 */
+                removeTag(tag: string): boolean;
+                /**
+                 * removeTag
+                 * @param tag 
+                 */
+                func_184197_b(tag: string): boolean;
+
+                isAddedToWorld(): boolean;
+                getEntityData(): net.minecraft.nbt.NBTTagCompound;
+            }
             interface EntityAgeable extends EntityCreature {}
             interface EntityCreature extends EntityLiving {}
             interface EntityLiving extends EntityLivingBase {}
@@ -2150,6 +2164,8 @@ declare namespace net {
         }
         namespace nbt {
             class NBTBase {
+                static readonly NBT_TYPES: ["END", "BYTE", "SHORT", "INT", "FLOAT", "DOUBLE", "BYTE[]", "STRING", "LIST", "COMPOUND", "INT[]", "LONG[]"];
+                static readonly field_82578_b: typeof this.NBT_TYPES;
                 /**
                  * func_74737_b
                  */
@@ -2189,6 +2205,105 @@ declare namespace net {
                 toString(): string;
             }
             class NBTTagCompound extends NBTBase {
+                /**
+                 * func_150297_b
+                 * @param key 
+                 * @param type 
+                 */
+                hasKey(key: string, type?: number): boolean;
+                /**
+                 * hasKey
+                 * @param key 
+                 * @param type 
+                 */
+                func_150297_b(key: string, type?: number): boolean;
+
+                /**
+                 * func_150296_c
+                 */
+                getKeySet(): java.util.Set<string>;
+                /**
+                 * getKeySet
+                 */
+                func_150296_c(): java.util.Set<string>;
+
+                /**
+                 * func_74771_c
+                 * @param key 
+                 */
+                getByte(key: string): number;
+                /**
+                 * getByte
+                 * @param key 
+                 */
+                func_74771_c(key: string): number;
+
+                /**
+                 * func_74765_d
+                 * @param key 
+                 */
+                getShort(key: string): number;
+                /**
+                 * getShort
+                 * @param key 
+                 */
+                func_74765_d(key: string): number;
+
+                /**
+                 * func_74762_e
+                 * @param key 
+                 */
+                getInteger(key: string): number;
+                /**
+                 * getInteger
+                 * @param key 
+                 */
+                func_74762_e(key: string): number;
+
+                /**
+                 * func_74763_f
+                 * @param key 
+                 */
+                getLong(key: string): number;
+                /**
+                 * getLong
+                 * @param key 
+                 */
+                func_74763_f(key: string): number;
+
+                /**
+                 * func_74760_g
+                 * @param key 
+                 */
+                getFloat(key: string): number;
+                /**
+                 * getFloat
+                 * @param key 
+                 */
+                func_74760_g(key: string): number;
+
+                /**
+                 * func_74769_h
+                 * @param key 
+                 */
+                getDouble(key: string): number;
+                /**
+                 * getDouble
+                 * @param key 
+                 */
+                func_74769_h(key: string): number;
+
+                /**
+                 * func_74775_l
+                 * @param key 
+                 */
+                getCompoundTag(key: string): NBTTagCompound;
+                /**
+                 * getCompoundTag
+                 * @param key 
+                 */
+                func_74775_l(key: string): NBTTagCompound;
+
                 /**
                  * func_74774_a
                  * @param key 
@@ -2307,6 +2422,19 @@ declare namespace net {
                 func_74778_a(key: string, str: string): void;
 
                 /**
+                 * func_74782_a
+                 * @param key 
+                 * @param value 
+                 */
+                setTag(key: string, value: NBTBase): void;
+                /**
+                 * setTag
+                 * @param key 
+                 * @param value 
+                 */
+                func_74782_a(key: string, value: NBTBase): void;
+
+                /**
                  * func_186854_a
                  * @param key 
                  * @param uuid 
@@ -2333,70 +2461,15 @@ declare namespace net {
                 func_74783_a(key: string, intArray: number[]): void;
 
                 /**
-                 * func_74771_c
+                 * func_82580_o
                  * @param key 
                  */
-                getByte(key: string): number;
+                removeTag(key: string): void;
                 /**
-                 * getByte
+                 * removeTag
                  * @param key 
                  */
-                func_74771_c(key: string): number;
-
-                /**
-                 * func_74765_d
-                 * @param key 
-                 */
-                getShort(key: string): number;
-                /**
-                 * getShort
-                 * @param key 
-                 */
-                func_74765_d(key: string): number;
-
-                /**
-                 * func_74762_e
-                 * @param key 
-                 */
-                getInteger(key: string): number;
-                /**
-                 * getInteger
-                 * @param key 
-                 */
-                func_74762_e(key: string): number;
-
-                /**
-                 * func_74763_f
-                 * @param key 
-                 */
-                getLong(key: string): number;
-                /**
-                 * getLong
-                 * @param key 
-                 */
-                func_74763_f(key: string): number;
-
-                /**
-                 * func_74760_g
-                 * @param key 
-                 */
-                getFloat(key: string): number;
-                /**
-                 * getFloat
-                 * @param key 
-                 */
-                func_74760_g(key: string): number;
-
-                /**
-                 * func_74769_h
-                 * @param key 
-                 */
-                getDouble(key: string): number;
-                /**
-                 * getDouble
-                 * @param key 
-                 */
-                func_74769_h(key: string): number;
+                func_82580_o(key: string): void;
             }
         }
         namespace server {
@@ -2907,6 +2980,10 @@ declare namespace java {
             previous(): T;
             previousIndex(): number;
             set(t: T): void;
+        }
+        interface Set<T> extends Collection<T> {
+            static of<E>(...elements: E[]): Set<E>;
+            static copyOf<E>(collection: Collection<E>): Set<E>;
         }
         interface UUID {
             clockSequence(): number;
