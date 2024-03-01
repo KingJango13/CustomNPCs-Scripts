@@ -279,10 +279,11 @@ function jstat_cmd(event){
                 }
                 case "list": {
                     p.message("Your waypoints:");
-                    var wayPointNames = waypoints.func_150296_c();
+                    var wps = waypoints.func_150296_c();
+                    var wayPointNames = wps.toArray(javaArray("java.lang.String", wps.size()));
                     for(var i = 0; i < wayPointNames.size(); i++) {
                         var wp = posFromNBT(waypoints.func_74775_l(wayPointNames[i]));
-                        p.message(wayPointNames[i] + ": " + stringifyPos(wp) + event.API.getIWorld(wp.dim).getDimension().getName() + ")");
+                        p.message(wayPointNames[i] + ": " + stringifyPos(wp) + " (" + event.API.getIWorld(wp.dim).getDimension().getName() + ")");
                     }
                     p.message("");
                     break;

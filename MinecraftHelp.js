@@ -9,19 +9,9 @@ function importClass(className) {
     globalThis[className.substring(className.lastIndexOf(".") + 1)] = Java.type(className);
 }
 
-/**
- * @type {typeof net.minecraft.item.ItemStack}
- */
 var ItemStack = Java.type("net.minecraft.item.ItemStack");
-/**
- * @type {typeof net.minecraft.item.Item}
- */
 var Item = Java.type("net.minecraft.item.Item");
-/**
- * @type {typeof net.minecraft.nbt.NBTTagCompound}
- */
 var NBTTagCompound = Java.type("net.minecraft.nbt.NBTTagCompound");
-
 importClass("net.minecraftforge.fluids.FluidRegistry");
 
 function parseNBTString(nbtStr) {
@@ -196,4 +186,14 @@ function posFromNBT(posNBT) {
         z: posNBT.func_74769_h("z"),
         dim: posNBT.func_74762_e("dim")
     };
+}
+
+/**
+ * @template {T extends keyof JavaTypes}
+ * @param {T} javaType 
+ * @param {number} size 
+ * @returns {JavaArray<JavaTypes[T]>}
+ */
+function javaArray(javaType, size) {
+    return new (Java.type(javaType + "[]"))(size);
 }

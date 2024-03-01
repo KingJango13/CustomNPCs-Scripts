@@ -599,7 +599,7 @@ declare namespace entity {
         typeOf(type: number): boolean;
     }
 
-    interface IEntityItem<T extends net.minecraft.entity.item.EntityItem> extends IEntity<T> {
+    interface IEntityItem<T extends net.minecraft.entity.item.EntityItem = net.minecraft.entity.item.EntityItem> extends IEntity<T> {
         getAge(): number;
         getItem(): item.IItemStack;
         getLifeSpawn(): number;
@@ -613,7 +613,7 @@ declare namespace entity {
         setPickupDelay(delay: number): void;
     }
 
-    interface IEntityLivingBase<T extends net.minecraft.entity.EntityLivingBase> extends IEntity<T> {
+    interface IEntityLivingBase<T extends net.minecraft.entity.EntityLivingBase = net.minecraft.entity.EntityLivingBase> extends IEntity<T> {
         addMark(type: number): data.IMark;
         addPotionEffect(effect: number, duration: number, strength: number, hideParticles: boolean): void;
         canSeeEntity(entity: IEntity): boolean;
@@ -647,7 +647,7 @@ declare namespace entity {
         swingOffhand(): void;
     }
 
-    interface IEntityLiving<T extends net.minecraft.entity.EntityLiving> extends IEntityLivingBase<T> {
+    interface IEntityLiving<T extends net.minecraft.entity.EntityLiving = net.minecraft.entity.EntityLiving> extends IEntityLivingBase<T> {
         clearNavigation(): void;
         getNavigationPath(): IPos;
         isNavigating(): boolean;
@@ -740,7 +740,7 @@ declare namespace entity {
     interface IArrow<T extends net.minecraft.entity.projectile.EntityArrow> extends IEntity<T> {}
     interface IMonster<T extends net.minecraft.entity.monster.EntityMob> extends IEntityLiving<T> {}
     interface IThrowable<T extends net.minecraft.entity.projectile.EntityThrowable> extends IEntity<T> {}
-    interface IProjectile<T extends net.minecraft.entity.projectile.EntityThrowable> extends IThrowable<T> {
+    interface IProjectile<T extends net.minecraft.entity.projectile.EntityThrowable = net.minecraft.entity.projectile.EntityThrowable> extends IThrowable<T> {
         enableEvents(): void;
         getAccuracy(): number;
         getHasGravity(): boolean;
@@ -1960,16 +1960,16 @@ declare namespace net {
         }
         namespace entity {
             namespace item {
-                interface EntityItem extends Entity {}
+                class EntityItem extends Entity {}
             }
             namespace monster {
-                interface EntityMob extends EntityCreature {}
+                class EntityMob extends EntityCreature {}
             }
             namespace passive {
-                interface EntityAnimal extends EntityAgeable {}
+                class EntityAnimal extends EntityAgeable {}
             }
             namespace player {
-                interface EntityPlayer extends EntityLivingBase {
+                class EntityPlayer extends EntityLivingBase {
                     /**
                      * field_71071_by
                      */
@@ -1979,8 +1979,14 @@ declare namespace net {
                      */
                     field_71071_by: InventoryPlayer;
                 }
-                interface EntityPlayerMP extends EntityPlayer {}
-                interface InventoryPlayer implements net.minecraft.inventory.IInventory {
+                class EntityPlayerMP extends EntityPlayer {}
+                class InventoryPlayer implements net.minecraft.inventory.IInventory {
+                    getSizeInventory(): number;
+                    isEmpty(): number;
+                    getStackInSlot(index: number): minecraft.item.ItemStack;
+                    getName(): string;
+                    hasCustomName(): boolean;
+                    getDisplayName(): util.text.ITextComponent;
                     /**
                      * field_70462_a
                      */
@@ -2033,10 +2039,10 @@ declare namespace net {
                 }
             }
             namespace projectile {
-                interface EntityArrow extends Entity {}
-                interface EntityThrowable extends Entity {}
+                class EntityArrow extends Entity {}
+                class EntityThrowable extends Entity {}
             }
-            interface Entity {
+            class Entity {
                 /**
                  * func_184197_b
                  * @param tag 
@@ -2051,10 +2057,10 @@ declare namespace net {
                 isAddedToWorld(): boolean;
                 getEntityData(): net.minecraft.nbt.NBTTagCompound;
             }
-            interface EntityAgeable extends EntityCreature {}
-            interface EntityCreature extends EntityLiving {}
-            interface EntityLiving extends EntityLivingBase {}
-            interface EntityLivingBase extends Entity {}
+            class EntityAgeable extends EntityCreature {}
+            class EntityCreature extends EntityLiving {}
+            class EntityLiving extends EntityLivingBase {}
+            class EntityLivingBase extends Entity {}
         }
         namespace inventory {
             interface IInventory extends world.IWorldNameable {
@@ -2064,7 +2070,7 @@ declare namespace net {
             }
         }
         namespace item {
-            class EnumRarity implements net.minecraftforge.common.IRarity {
+            class EnumRarity extends java.lang.Enum<EnumRarity> implements net.minecraftforge.common.IRarity {
                 static readonly COMMON: EnumRarity;
                 static readonly UNCOMMON: EnumRarity;
                 static readonly RARE: EnumRarity;
@@ -2203,6 +2209,61 @@ declare namespace net {
                  */
                 func_82582_d(): boolean;
                 toString(): string;
+            }
+            class NBTPrimitive extends NBTBase {
+                /**
+                 * func_150290_f
+                 */
+                getByte(): number;
+                /**
+                 * getByte
+                 */
+                func_150290_f(): number;
+
+                /**
+                 * func_150289_e
+                 */
+                getShort(): number;
+                /**
+                 * getShort
+                 */
+                func_150289_e(): number;
+
+                /**
+                 * func_150287_d
+                 */
+                getInt(): number;
+                /**
+                 * getInt
+                 */
+                func_150287_d(): number;
+
+                /**
+                 * func_150291_c
+                 */
+                getLong(): number;
+                /**
+                 * getLong
+                 */
+                func_150291_c(): number;
+
+                /**
+                 * func_150288_h
+                 */
+                getFloat(): number;
+                /**
+                 * getFloat
+                 */
+                func_150288_h(): number;
+
+                /**
+                 * func_150286_g
+                 */
+                getDouble(): number;
+                /**
+                 * getDouble
+                 */
+                func_150286_g(): number;
             }
             class NBTTagCompound extends NBTBase {
                 /**
@@ -2551,7 +2612,7 @@ declare namespace net {
                 }
                 interface UserListWhitelistEntry extends UserListEntry<com.mojang.authlib.GameProfile> {}
             }
-            interface MinecraftServer {
+            class MinecraftServer {
                 allowSpawnMonsters(): boolean;
                 canCreateBonusChest(enable: boolean): void;
                 canStructureSpawn(): boolean;
@@ -2598,7 +2659,7 @@ declare namespace net {
         }
         namespace util {
             namespace math {
-                interface BlockPos extends Vec3i {
+                class BlockPos extends Vec3i {
                     add(x: number, y: number, z: number): BlockPos;
                     add(vec: Vec3i): BlockPos;
                     crossProduct(vec: Vec3i): BlockPos;
@@ -2621,7 +2682,7 @@ declare namespace net {
                     west(n: number): BlockPos;
                     west(): BlockPos;
                 }
-                interface Vec3i {
+                class Vec3i {
                     compareTo(other: Vec3i): -1|0|1;
                     crossProduct(other: Vec3i): Vec3i;
                     distanceSq(toX: number, toY: number, toZ: number): number;
@@ -2640,7 +2701,7 @@ declare namespace net {
                 class TextComponentBase implements ITextComponent {
                     static createDeepCopyIterator(components: java.lang.Iterable<ITextComponent>): java.util.Iterator<ITextComponent>;
                 }
-                interface ITextComponent extends java.lang.Iterable<ITextComponent> {
+                class ITextComponent extends java.lang.Iterable<ITextComponent> {
                     setStyle(style: Style): ITextComponent;
                     getStyle(): Style;
                     appendText(text: string): ITextComponent;
@@ -2709,24 +2770,32 @@ declare namespace net {
                 hashCode(): number;
                 compareTo(other: ResourceLocation): -1|0|1;
             }
-            interface Rotation {
+            class Rotation {
                 add(other: Rotation): Rotation;
                 rotate(facing: EnumFacing): EnumFacing;
                 rotate(a: number, b: number): number;
-            }
-            namespace Rotation {
-                const CLOCKWISE_180: Rotation;
-                const CLOCKWISE_90: Rotation;
-                const COUNTERCLOCKWISE_90: Rotation;
-                const NONE: Rotation;
-                function valueOf(name: string): Rotation;
-                function values(): Rotation[];
+                static readonly CLOCKWISE_180: Rotation;
+                static readonly CLOCKWISE_90: Rotation;
+                static readonly COUNTERCLOCKWISE_90: Rotation;
+                static readonly NONE: Rotation;
+                static valueOf(name: string): Rotation;
+                static values(): Rotation[];
             }
             class SoundEvent extends net.minecraftforge.registries.IForgeRegistryEntry.Impl<SoundEvent> {
                 getSoundName(): ResourceLocation;
             }
         }
         namespace world {
+            namespace storage {
+                class WorldSavedData implements net.minecraftforge.common.util.INBTSerializable<net.minecraft.nbt.NBTTagCompound> {
+                    constructor(mapName: string);
+                    readFromNBT(nbt: net.minecraft.nbt.NBTTagCompound): void;
+                    writeToNBT(nbt: net.minecraft.nbt.NBTTagCompound): net.minecraft.nbt.NBTTagCompound;
+                    markDirty(): void;
+                    setDirty(dirty: boolean): void;
+                    isDirty(): boolean;
+                }
+            }
             interface EnumDifficulty {
                 getDifficultyId(): number;
                 getDifficultyResourceKey(): string;
@@ -2779,6 +2848,12 @@ declare namespace net {
 
     namespace minecraftforge {
         namespace common {
+            namespace util {
+                interface INBTSerializable<T extends net.minecraft.nbt.NBTBase> {
+                    serializeNBT(): T;
+                    deserializeNBT(nbt: T): void;
+                }
+            }
             interface IRarity {
                 getColor(): net.minecraft.util.text.TextFormatting;
                 getName(): string;
@@ -2873,6 +2948,14 @@ declare namespace net {
     }
 }
 
+declare class JavaArray<T> {
+    readonly length: number;
+    constructor(length: number);
+    [index: number]: T;
+}
+
+declare function javaArray<T extends keyof JavaTypes>(javaType: T, size: number): JavaArray<JavaTypes[T]>;
+
 declare namespace java {
     namespace lang {
         namespace reflect {
@@ -2917,6 +3000,17 @@ declare namespace java {
         class Class<T> {
             getDeclaredMethods(): reflect.Method[];
         }
+        interface Comparable<T> {
+            compareTo(other: T): number;
+        }
+        class Enum<T extends Enum<T>> implements Comparable<T> {
+            equals(o: object): boolean;
+            getDeclaringClass(): Class<T>;
+            hashCode(): number;
+            name(): string;
+            ordinal(): number;
+            valueOf<U extends Enum<U>>(enumType: Class<U>, name: string): U;
+        }
         interface Iterable<T> {
             forEach(action: func.Consumer<T>): void;
             iterator(): util.Iterator<T>;
@@ -2924,10 +3018,45 @@ declare namespace java {
     }
     namespace util {
         namespace func {
-            type Consumer<T> = (t: T) => void;
-            type Function<T,R> = (t: T) => R;
-            type Predicate<T> = (t: T) => boolean;
+            interface BiConsumer<T,U> {
+                (t: T, u: U): void;
+                accept(t: T, u: U): void;
+                andThen(after: BiConsumer<T,U>): BiConsumer<T,U>;
+            }
+            interface BiFunction<T,U,R> {
+                (t: T, u: U): R;
+                andThen<V>(after: Function<R,V>): BiFunction<T,U,V>;
+                apply(t: T, u: U): R;
+            }
+            type BiFunction<T,U,R> = (t: T, u: U) => R;
+            interface Consumer<T> {
+                (t: T): void;
+                accept(t: T): void;
+                andThen(after: Consumer<T>): Consumer<T>;
+            }
+            interface Function<T,R> {
+                (t: T): R;
+                andThen<V>(after: Function<R,V>): Function<T,V>;
+                apply(t: T): R;
+                compose<V>(before: Function<V,T>): Function<V,R>;
+            }
+            namespace Function {
+                function identity<T>(): Function<T,T>;
+            }
+            interface Predicate<T> {
+                (t: T): boolean;
+                and(other: Predicate<T>): Predicate<T>;
+                negate(): Predicate<T>;
+                or(other: Predicate<T>): Predicate<T>;
+                test(t: T): boolean;
+            }
+            namespace Predicate {
+                function isEqual<T>(targetRef: object): Predicate<T>;
+            }
             type UnaryOperator<T> = Function<T,T>;
+        }
+        class AbstractMap<K,V> implements Map<K,V> {
+            toString(): string;
         }
         interface Collection<T> extends lang.Iterable<T> {
             add(t: T): boolean;
@@ -2947,12 +3076,16 @@ declare namespace java {
             toArray<E>(a: E[]): E[];
         }
         interface Comparator<T> {
-            commpare(a: T, b: T): -1|0|1;
+            commpare(a: T, b: T): number;
             equals(o: object): boolean;
             reversed(): Comparator<T>;
             thenComparing(other: Comparator<T>): Comparator<T>;
         }
         interface Date {}
+        class HashMap<K,V> extends AbstractMap<K,V> {
+            clone(): object;
+            putIfAbsent(key: K, value: V): V;
+        }
         interface Iterator<T> {
             forEachRemaining(action: func.Consumer<T>): void;
             hasNext(): boolean;
@@ -2981,6 +3114,46 @@ declare namespace java {
             previousIndex(): number;
             set(t: T): void;
         }
+        interface Map<K,V> {
+            clear(): void;
+            compute(key: K, remapFunction: func.BiFunction<K,V,V>): V;
+            computeIfAbsent(key: K, mapFunction: func.Function<K,V>): V;
+            computeIfPresent(key: K, remapFunction: func.BiFunction<K,V,V>): V;
+            containsKey(key: object): boolean;
+            containsValue(value: object): boolean;
+            entrySet(): Set<Map.Entry<K,V>>;
+            forEach(action: func.BiConsumer<K,V>): void;
+            get(key: object): V;
+            getOrDefault(key: object, defaultValue: V): V;
+            hashCode(): number;
+            isEmpty(): boolean;
+            keySet(): Set<K>;
+            merge(key: K, value: V, remapFunction: func.BiFunction<V,V,V>): V;
+            put(key: K, value: V): V;
+            putAll(m: Map<K,V>): void;
+            remove(key: object): V;
+            remove(key: object, targetValue: object): boolean;
+            replace(key: K, value: V): V;
+            replace(key: K, targetValue: V, newValue: V): boolean;
+            replaceAll(func: func.BiFunction<K,V,V>): void;
+            size(): number;
+            values(): Collection<V>;
+        }
+        namespace Map {
+            interface Entry<K,V> {
+                equals(o: object): boolean;
+                getKey(): K;
+                getValue(): V;
+                hashCode(): number;
+                setValue(value: V): V;
+            }
+            namespace Entry {
+                function comparingByKey<K extends java.lang.Comparable<K>, V>(): Comparator<Map.Entry<K,V>>;
+                function comparingByKey<K,V>(cmp: Comparator<K>): Comparator<Map.Entry<K,V>>;
+                function comparingByValue<K, V extends java.lang.Comparable<V>>(): Comparator<Map.Entry<K,V>>;
+                function comparingByValue<K,V>(cmp: Comparator<V>): Comparator<Map.Entry<K,V>>;
+            }
+        }
         interface Set<T> extends Collection<T> {
             static of<E>(...elements: E[]): Set<E>;
             static copyOf<E>(collection: Collection<E>): Set<E>;
@@ -3006,3 +3179,37 @@ declare namespace java {
         }
     }
 }
+
+interface JavaTypes {
+    "net.minecraft.block.Block": typeof net.minecraft.block.Block;
+
+    "net.minecraft.entity.Entity": typeof net.minecraft.entity.Entity;
+    "net.minecraft.entity.EntityAgeable": typeof net.minecraft.entity.EntityAgeable;
+    "net.minecraft.entity.EntityCreature": typeof net.minecraft.entity.EntityCreature;
+    "net.minecraft.entity.EntityLiving": typeof net.minecraft.entity.EntityLiving;
+    "net.minecraft.entity.EntityLivingBase": typeof net.minecraft.entity.EntityLivingBase;
+    "net.minecraft.entity.item.EntityItem": typeof net.minecraft.entity.item.EntityItem;
+    "net.minecraft.entity.monster.EntityMob": typeof net.minecraft.entity.monster.EntityMob;
+    "net.minecraft.entity.passive.EntityAnimal": typeof net.minecraft.entity.passive.EntityAnimal;
+    "net.minecraft.entity.player.EntityPlayer": typeof net.minecraft.entity.player.EntityPlayer;
+    "net.minecraft.entity.player.EntityPlayerMP": typeof net.minecraft.entity.player.EntityPlayerMP;
+    "net.minecraft.entity.player.InventoryPlayer": typeof net.minecraft.entity.player.InventoryPlayer;
+    "net.minecraft.entity.projectile.EntityArrow": typeof net.minecraft.entity.projectile.EntityArrow;
+    "net.minecraft.entity.projectile.EntityThrowable": typeof net.minecraft.entity.projectile.EntityThrowable;
+
+    //"net.minecraft.inventory.IInventory": typeof net.minecraft.inventory.IInventory;
+    
+    "net.minecraft.item.EnumRarity": typeof net.minecraft.item.EnumRarity;
+    "net.minecraft.item.Item": typeof net.minecraft.item.Item;
+    "net.minecraft.item.ItemStack": typeof net.minecraft.item.ItemStack;
+    
+    "net.minecraft.nbt.NBTBase": typeof net.minecraft.nbt.NBTBase;
+    "net.minecraft.nbt.NBTPrimitive": typeof net.minecraft.nbt.NBTPrimitive;
+    "net.minecraft.nbt.NBTTagCompound": typeof net.minecraft.nbt.NBTTagCompound;
+
+    "java.lang.String": string;
+}
+
+declare const Java: {
+    type<JavaType extends keyof JavaTypes>(typeName: JavaType): JavaTypes[JavaType];
+};
