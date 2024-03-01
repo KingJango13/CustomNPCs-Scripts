@@ -264,7 +264,7 @@ function jstat_cmd(event){
                         break;
                     }
                     var targetName = msgArgs[3];
-                    if(waypoints.func_150297_b(targetName, getNBTTypeID("COMPOUND"))) {
+                    if(!waypoints.func_150297_b(targetName, getNBTTypeID("COMPOUND"))) {
                         p.message("You have no waypoint named \"" + targetName + "\"");
                         break;
                     }
