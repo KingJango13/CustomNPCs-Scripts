@@ -281,7 +281,7 @@ function jstat_cmd(event){
                     p.message("Your waypoints:");
                     var wps = waypoints.func_150296_c();
                     var wayPointNames = wps.toArray(javaArray("java.lang.String", wps.size()));
-                    for(var i = 0; i < wayPointNames.size(); i++) {
+                    for(var i = 0; i < wayPointNames.length; i++) {
                         var wp = posFromNBT(waypoints.func_74775_l(wayPointNames[i]));
                         p.message(wayPointNames[i] + ": " + stringifyPos(wp) + " (" + event.API.getIWorld(wp.dim).getDimension().getName() + ")");
                     }
